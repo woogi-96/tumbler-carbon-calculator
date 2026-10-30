@@ -5,49 +5,75 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>내 텀블러는 친환경일까?</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
 <style>
 /* 레이아웃: 왼쪽은 내 사용 습관 입력, 오른쪽은 탄소 수지 결과. 좁은 화면에서는 결과가 먼저 온다. */
 :root {
-  --bg: #eef2f3; --panel: #ffffff; --ink: #14222a; --ink-2: #4a5b64; --muted: #6d7d85;
-  --line: #d3dcdf; --accent: #0b6e7f; --accent-soft: #cfe6ea; --track: #dfe6e8;
+  --bg: #bfe3a8; --well: #eef6e8; --panel: rgba(255, 255, 255, 0.94); --ink: #14301d; --ink-2: #3c5845; --muted: #5a7362;
+  --line: #cfe0c9; --accent: #2b7a33; --accent-soft: #d6efd0; --on-accent: #ffffff; --track: #e3ecdd; --band: #b5dbab;
   --good: #0a7d0a; --warn: #8a5a00; --bad: #c0302f;
   --good-bg: #dff2df; --warn-bg: #f8ecd0; --bad-bg: #f9dfdd;
-  --display: "Do Hyeon", "IBM Plex Sans KR", system-ui, sans-serif;
+  --sky-top: #8fd3f4; --sky-bottom: #e3f6e4; --sun: #ffe27a; --cloud: rgba(255, 255, 255, 0.9);
+  --hill-far: #a9d98c; --hill-mid: #7fc362; --hill-near: #5aa845;
+  --blade-a: #3f8f37; --blade-b: #6dbb4f; --petal: #ffffff; --petal-2: #ffd84d;
+  --title: #2b7a33; --title-2: #4f9a2f; --title-3: #e8930c; --title-edge: #ffffff; --title-shadow: rgba(30, 80, 30, 0.35);
+  --cup: #7fcf8a; --cup-dark: #4da35c; --cup-lid: #2f6b3a; --cup-face: #16301d; --cup-cheek: #ff9d9d; --leaf: #58b947;
+  --display: "Jua", "IBM Plex Sans KR", system-ui, sans-serif;
   --body: "IBM Plex Sans KR", system-ui, -apple-system, "Apple SD Gothic Neo", sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #11181b; --panel: #1a2428; --ink: #e8eef0; --ink-2: #b4c1c6; --muted: #8b9aa0;
-    --line: #2f3d43; --accent: #4fb9cc; --accent-soft: #1f4a53; --track: #2a363b;
+    --bg: #123021; --well: #15291e; --panel: rgba(17, 36, 26, 0.94); --ink: #e9f4ea; --ink-2: #b9cfbd; --muted: #93ab98;
+    --line: #2d4a37; --accent: #7fd088; --accent-soft: #24492f; --on-accent: #0d2214; --track: #27402f; --band: #3b6b46;
     --good: #5fcf5f; --warn: #e5b357; --bad: #f08481;
     --good-bg: #173a1b; --warn-bg: #3d3014; --bad-bg: #472020;
+    --sky-top: #0d2340; --sky-bottom: #2c5a57; --sun: #f4edc0; --cloud: rgba(190, 215, 225, 0.22);
+    --hill-far: #2b5a3c; --hill-mid: #214b30; --hill-near: #183c25;
+    --blade-a: #2f6e3c; --blade-b: #4b8f4c; --petal: #d9e6d4; --petal-2: #d9c264;
+    --title: #b9f08a; --title-2: #8fe07f; --title-3: #ffd166; --title-edge: #0f2a1a; --title-shadow: rgba(0, 0, 0, 0.5);
+    --cup: #6cc47a; --cup-dark: #3f8f4e; --cup-lid: #d7efd6; --cup-face: #0d2214; --cup-cheek: #ff9d9d; --leaf: #8fe07f;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #11181b; --panel: #1a2428; --ink: #e8eef0; --ink-2: #b4c1c6; --muted: #8b9aa0;
-  --line: #2f3d43; --accent: #4fb9cc; --accent-soft: #1f4a53; --track: #2a363b;
+  --bg: #123021; --well: #15291e; --panel: rgba(17, 36, 26, 0.94); --ink: #e9f4ea; --ink-2: #b9cfbd; --muted: #93ab98;
+  --line: #2d4a37; --accent: #7fd088; --accent-soft: #24492f; --on-accent: #0d2214; --track: #27402f; --band: #3b6b46;
   --good: #5fcf5f; --warn: #e5b357; --bad: #f08481;
   --good-bg: #173a1b; --warn-bg: #3d3014; --bad-bg: #472020;
+  --sky-top: #0d2340; --sky-bottom: #2c5a57; --sun: #f4edc0; --cloud: rgba(190, 215, 225, 0.22);
+  --hill-far: #2b5a3c; --hill-mid: #214b30; --hill-near: #183c25;
+  --blade-a: #2f6e3c; --blade-b: #4b8f4c; --petal: #d9e6d4; --petal-2: #d9c264;
+  --title: #b9f08a; --title-2: #8fe07f; --title-3: #ffd166; --title-edge: #0f2a1a; --title-shadow: rgba(0, 0, 0, 0.5);
+  --cup: #6cc47a; --cup-dark: #3f8f4e; --cup-lid: #d7efd6; --cup-face: #0d2214; --cup-cheek: #ff9d9d; --leaf: #8fe07f;
   color-scheme: dark;
 }
 [hidden] { display: none !important; }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 var(--body); }
+.scene { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; display: block; }
 .wrap { max-width: 1080px; margin: 0 auto; padding-block: 32px 48px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   display: grid; gap: 20px; }
-header h1 { font: 400 clamp(30px, 5vw, 44px)/1.15 var(--display); margin: 0 0 6px; text-wrap: balance; }
-header p { margin: 0; color: var(--ink-2); max-width: 62ch; }
+.hero { display: flex; align-items: center; gap: clamp(8px, 2vw, 18px); margin-bottom: 10px; }
+.mascot { width: clamp(72px, 13vw, 118px); height: auto; flex: none; transform-origin: 50% 100%; animation: bob 3.2s ease-in-out infinite; }
+header h1 { font: 400 clamp(34px, 7vw, 64px)/1.2 var(--display); margin: 0; min-width: 0; color: var(--title); }
+.word { display: inline-block; white-space: nowrap; margin-right: 0.22em; }
+.syl { display: inline-block; -webkit-text-stroke: 0.14em var(--title-edge); paint-order: stroke fill; text-shadow: 0 0.07em 0 var(--title-shadow); animation: pop 0.5s cubic-bezier(.3, 1.6, .5, 1) both; animation-delay: calc(var(--i) * 45ms); }
+.syl:nth-child(odd) { transform: rotate(-4deg) translateY(1px); }
+.syl:nth-child(even) { transform: rotate(3deg) translateY(-2px); color: var(--title-2); }
+.syl.mark { color: var(--title-3); transform: rotate(10deg); }
+header p { margin: 0; color: var(--ink); max-width: 62ch; width: fit-content; font-weight: 500; background: var(--panel); padding: 8px 14px; border-radius: 14px; }
+@keyframes bob { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-5px) rotate(1.5deg); } }
+@keyframes pop { from { scale: 0.7; } to { scale: 1; } }
+@media (prefers-reduced-motion: reduce) { .mascot, .syl { animation: none; } }
 .grid { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 20px; align-items: start; }
-.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 20px; min-width: 0; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px; min-width: 0; box-shadow: 0 6px 18px rgba(20, 60, 30, 0.14); }
 form { display: grid; gap: 16px; }
 fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 6px; }
 legend, label.name { font-weight: 600; font-size: 14px; padding: 0; }
 .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; }
 .seg input { position: absolute; opacity: 0; pointer-events: none; }
-.seg label { text-align: center; padding: 8px 4px; border: 1px solid var(--line); border-radius: 4px; cursor: pointer; font-size: 13px; line-height: 1.3; }
+.seg label { text-align: center; padding: 8px 4px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; font-size: 13px; line-height: 1.3; }
 .seg input:checked + label { background: var(--accent-soft); border-color: var(--accent); font-weight: 600; }
 .seg input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
 .row { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
@@ -61,16 +87,18 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .status.bad { background: var(--bad-bg); color: var(--bad); }
 .headline { font: 400 clamp(24px, 3.6vw, 32px)/1.25 var(--display); margin: 12px 0 4px; text-wrap: balance; }
 .sub { color: var(--ink-2); margin: 0; }
-.gauge { margin-top: 16px; }
-.track { position: relative; height: 12px; background: var(--track); border-radius: 3px; }
-.fill { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 3px; }
-.band { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--ink); border-right: 2px solid var(--ink); }
-.scale { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); margin-top: 8px; gap: 12px; font-variant-numeric: tabular-nums; }
+.gauge { margin-top: 42px; }
+.track { position: relative; height: 14px; background: var(--track); border-radius: 7px; }
+.band { position: absolute; inset: 0 auto 0 0; background: var(--band); border-radius: 7px; }
+.fill { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 7px; }
+.goal { position: absolute; bottom: -9px; width: 40px; height: auto; transform: translateX(-50%); filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3)); }
+.scale { display: flex; flex-wrap: wrap; justify-content: space-between; font-size: 12.5px; color: var(--muted); margin-top: 10px; gap: 2px 12px; font-variant-numeric: tabular-nums; }
+.scale span { white-space: nowrap; }
 h2 { font-size: 15px; margin: 0 0 4px; font-weight: 600; }
 #chart { width: 100%; height: auto; display: block; margin-top: 8px; touch-action: pan-y; }
 #chart text { fill: var(--muted); font: 12px var(--body); font-variant-numeric: tabular-nums; }
 #chart text.mark { fill: var(--ink); font-weight: 600; }
-.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--panel); padding: 4px 8px; border-radius: 4px; font-size: 12.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--well); padding: 4px 8px; border-radius: 4px; font-size: 12.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .chartbox { position: relative; }
 .tablewrap { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; font-size: 14px; }
@@ -80,17 +108,17 @@ th { font-weight: 500; color: var(--muted); font-size: 13px; }
 tr.now td { font-weight: 600; }
 .diag { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 24px; margin-top: 12px; }
 .diag-input { display: grid; gap: 10px; align-content: start; min-width: 0; }
-.drop { display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; min-width: 0; position: relative; min-height: 180px; border: 1.5px dashed var(--line); border-radius: 6px; background: var(--bg); text-align: center; padding: 12px; cursor: pointer; color: var(--ink-2); font-size: 14px; }
+.drop { display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; min-width: 0; position: relative; min-height: 180px; border: 1.5px dashed var(--line); border-radius: 12px; background: var(--well); text-align: center; padding: 12px; cursor: pointer; color: var(--ink-2); font-size: 14px; }
 .drop.over, .drop:focus-within { border-color: var(--accent); }
 .drop img { max-width: 100%; max-height: 240px; height: auto; border-radius: 4px; display: block; }
 .drop input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .btns { display: flex; gap: 8px; flex-wrap: wrap; }
-button { font: 600 14px var(--body); padding: 9px 14px; border-radius: 4px; border: 1px solid var(--accent); background: var(--accent); color: var(--panel); cursor: pointer; }
+button { font: 600 14px var(--body); padding: 9px 16px; border-radius: 999px; border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); cursor: pointer; }
 button.quiet { background: transparent; color: var(--ink); border-color: var(--line); }
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .keybox { display: grid; gap: 4px; }
-.keybox input { width: 100%; font: 14px var(--body); padding: 8px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--ink); }
+.keybox input { width: 100%; font: 14px var(--body); padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--well); color: var(--ink); }
 .keybox input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .guide { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); }
 .diag-out { display: grid; gap: 16px; min-width: 0; align-content: start; }
@@ -103,16 +131,39 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .sev.low { color: var(--good); } .sev.medium { color: var(--warn); } .sev.high { color: var(--bad); }
 .detail { color: var(--ink-2); font-size: 13.5px; }
 .life { font: 400 26px/1.2 var(--display); }
-footer { font-size: 13px; color: var(--ink-2); max-width: 80ch; }
-footer p { margin: 0 0 6px; }
+footer { font-size: 13px; color: var(--ink-2); }
+footer p { margin: 0 0 6px; max-width: 90ch; }
+footer p:last-child { margin-bottom: 0; }
 @media (max-width: 760px) { .grid, .diag { grid-template-columns: minmax(0, 1fr); } .results { order: -1; } }
 </style>
 
 </head>
 <body>
 <div class="wrap">
+  <canvas class="scene" id="scene" aria-hidden="true"></canvas>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="tumbler" viewBox="0 0 64 84">
+      <path d="M32 20c0-8 3-13 11-16 2 8-1 14-9 17" fill="var(--leaf)"/>
+      <path d="M32 21c0-6-3-10-10-12-1 6 2 11 9 13" fill="var(--leaf)"/>
+      <rect x="12" y="19" width="40" height="10" rx="4" fill="var(--cup-lid)"/>
+      <path d="M14 29h36l-3 45a6 6 0 0 1-6 6H23a6 6 0 0 1-6-6z" fill="var(--cup)"/>
+      <path d="M41 29h9l-3 45a6 6 0 0 1-6 6h-5c3-1 5-3 5-6z" fill="var(--cup-dark)"/>
+      <circle cx="25" cy="48" r="3.4" fill="var(--cup-face)"/>
+      <circle cx="39" cy="48" r="3.4" fill="var(--cup-face)"/>
+      <circle cx="26.2" cy="46.8" r="1.1" fill="#fff"/>
+      <circle cx="40.2" cy="46.8" r="1.1" fill="#fff"/>
+      <circle cx="20" cy="55" r="3" fill="var(--cup-cheek)" opacity="0.8"/>
+      <circle cx="44" cy="55" r="3" fill="var(--cup-cheek)" opacity="0.8"/>
+      <path d="M27 54.5c1.5 3.4 8.5 3.4 10 0" fill="none" stroke="var(--cup-face)" stroke-width="2.2" stroke-linecap="round"/>
+    </symbol>
+  </svg>
   <header>
-    <h1>내 텀블러는 친환경일까?</h1>
+    <div class="hero">
+      <svg class="mascot" viewBox="0 0 64 84" aria-hidden="true"><use href="#tumbler"/></svg>
+      <h1 aria-label="내 텀블러는 친환경일까?">
+        <span aria-hidden="true"><span class="word"><span class="syl" style="--i:0">내</span></span><span class="word"><span class="syl" style="--i:1">텀</span><span class="syl" style="--i:2">블</span><span class="syl" style="--i:3">러</span><span class="syl" style="--i:4">는</span></span><span class="word"><span class="syl" style="--i:5">친</span><span class="syl" style="--i:6">환</span><span class="syl" style="--i:7">경</span><span class="syl" style="--i:8">일</span><span class="syl" style="--i:9">까</span><span class="syl mark" style="--i:10">?</span></span></span>
+      </h1>
+    </div>
     <p>텀블러는 만들 때 일회용컵보다 탄소를 훨씬 많이 배출합니다. 내 사용 습관으로 그 탄소를 회수했는지 계산합니다. 처음 보이는 값은 예시이니 내 습관으로 바꿔 보세요.</p>
   </header>
   <div class="grid">
@@ -138,7 +189,7 @@ footer p { margin: 0 0 6px; }
         <p class="headline" id="headline"></p>
         <p class="sub" id="sub"></p>
         <div class="gauge" id="gauge">
-          <div class="track"><div class="fill" id="fill"></div><div class="band" id="band"></div></div>
+          <div class="track"><div class="band" id="band"></div><div class="fill" id="fill"></div><svg class="goal" id="goal" viewBox="0 0 64 84" role="img" aria-label="본전 지점"><use href="#tumbler"/></svg></div>
           <div class="scale"><span id="scale-now"></span><span id="scale-goal"></span></div>
         </div>
       </section>
@@ -187,7 +238,7 @@ footer p { margin: 0 0 6px; }
       </div>
     </div>
   </section>
-  <footer>
+  <footer class="panel">
     <p>사진 진단은 눈에 보이는 상태만 보고 추정한 참고 정보입니다. 세균, 중금속, 보온 성능은 사진으로 알 수 없고, 남은 수명은 측정값이 아닙니다. <span id="diag-privacy"></span></p>
     <p>계산 방식: 필요 사용 횟수 = 보유 개수 × 텀블러 배출량 ÷ (대체 비율 × 컵 배출량 − 세척 비율 × 세척 배출량). 입력 불확실성을 반영한 표본 1,000개로 계산합니다.</p>
     <p>배출계수는 한국환경산업기술원 환경성적표지 평가계수와 인증 현황을 사용했습니다. 제품 중량, 세척 물 사용량, 세제 계수 등은 연구자 가정값이며 측정값이 아닙니다. 연구 진행 중인 프로토타입이므로 결과는 참고용입니다.</p>
@@ -270,8 +321,10 @@ function renderSummary(x, r) {
   const bandRight = Number.isFinite(r.high) ? Math.min(100, r.high / top * 100) : 100;
   $("band").style.left = bandLeft + "%";
   $("band").style.width = Math.max(0, bandRight - bandLeft) + "%";
+  // 본전이 아주 작아도 텀블러 그림이 막대 밖으로 나가지 않게 한다.
+  $("goal").style.left = `clamp(20px, ${r.mid / top * 100}%, calc(100% - 20px))`;
   $("scale-now").textContent = `내 사용 ${fmt(r.uses)}회`;
-  $("scale-goal").textContent = `테두리: 본전 90% 구간`;
+  $("scale-goal").textContent = `텀블러: 본전 약 ${fmt(r.mid)}회 · 옅은 띠: 90% 구간`;
 }
 
 const CHART = { w: 640, h: 280, l: 52, r: 16, t: 14, b: 34 };
@@ -1053,6 +1106,126 @@ $("chart").addEventListener("pointermove", hoverChart);
 $("chart").addEventListener("pointerleave", leaveChart);
 render();
 initDiagnosis();
+
+// ---- 초원 배경: 화면 크기에 맞춰 한 번 그리고, 크기나 테마가 바뀔 때만 다시 그린다. ----
+function paintScene() {
+  const canvas = $("scene");
+  const w = window.innerWidth, h = window.innerHeight;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.round(w * dpr);
+  canvas.height = Math.round(h * dpr);
+  const g = canvas.getContext("2d");
+  if (!g) return;
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const css = getComputedStyle(document.documentElement);
+  const color = (name) => css.getPropertyValue(name).trim();
+  let seed = 20261030;
+  const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+  const sky = g.createLinearGradient(0, 0, 0, h * 0.7);
+  sky.addColorStop(0, color("--sky-top"));
+  sky.addColorStop(1, color("--sky-bottom"));
+  g.fillStyle = sky;
+  g.fillRect(0, 0, w, h);
+
+  const sunX = w * 0.84, sunY = Math.max(70, h * 0.13), sunR = Math.min(70, w * 0.09);
+  const glow = g.createRadialGradient(sunX, sunY, sunR * 0.4, sunX, sunY, sunR * 3);
+  glow.addColorStop(0, color("--sun"));
+  glow.addColorStop(1, "rgba(255, 255, 255, 0)");
+  g.fillStyle = glow;
+  g.fillRect(0, 0, w, h * 0.6);
+  g.fillStyle = color("--sun");
+  g.beginPath();
+  g.arc(sunX, sunY, sunR, 0, Math.PI * 2);
+  g.fill();
+
+  g.fillStyle = color("--cloud");
+  for (const [cx, cy, s] of [[0.14, 0.1, 1], [0.5, 0.06, 0.8], [0.68, 0.2, 0.65]]) {
+    const unit = Math.min(46, w * 0.06) * s;
+    for (const [dx, dy, r] of [[-1.3, 0.2, 0.7], [-0.4, -0.2, 1], [0.6, -0.1, 0.85], [1.4, 0.25, 0.6]]) {
+      g.beginPath();
+      g.arc(w * cx + dx * unit, h * cy + dy * unit, r * unit, 0, Math.PI * 2);
+      g.fill();
+    }
+  }
+
+  const hills = [
+    { base: 0.5, amp: 0.045, freq: 1.3, phase: 0.6, fill: "--hill-far" },
+    { base: 0.6, amp: 0.05, freq: 1.8, phase: 2.4, fill: "--hill-mid" },
+    { base: 0.72, amp: 0.04, freq: 1.1, phase: 4.1, fill: "--hill-near" },
+  ];
+  const hillY = (hill, x) => h * (hill.base + hill.amp * Math.sin((x / w) * Math.PI * 2 * hill.freq + hill.phase));
+  for (const hill of hills) {
+    g.fillStyle = color(hill.fill);
+    g.beginPath();
+    g.moveTo(0, h);
+    for (let x = 0; x <= w; x += 8) g.lineTo(x, hillY(hill, x));
+    g.lineTo(w, h);
+    g.closePath();
+    g.fill();
+  }
+
+  // 멀리 있는 풀은 작게, 가까운 풀은 크게 그린다.
+  const count = Math.min(9000, Math.round((w * h) / 70));
+  const blades = [];
+  for (let i = 0; i < count; i++) {
+    const x = rand() * w;
+    const top = hillY(hills[1], x);
+    blades.push({ x, y: top + rand() * (h + 20 - top) });
+  }
+  blades.sort((a, b) => a.y - b.y);
+  const colors = [color("--blade-a"), color("--blade-b")];
+  g.lineCap = "round";
+  for (const { x, y } of blades) {
+    const depth = Math.max(0.15, (y - h * 0.55) / (h * 0.45));
+    const len = (6 + rand() * 14) * (0.5 + depth * 1.3);
+    const lean = (rand() - 0.5) * len * 0.9;
+    g.strokeStyle = colors[rand() < 0.5 ? 0 : 1];
+    g.lineWidth = 0.7 + depth * 1.1;
+    g.beginPath();
+    g.moveTo(x, y);
+    g.quadraticCurveTo(x + lean * 0.2, y - len * 0.6, x + lean, y - len);
+    g.stroke();
+  }
+
+  const petals = [color("--petal"), color("--petal-2")];
+  const flowers = Math.round((w * h) / 16000);
+  for (let i = 0; i < flowers; i++) {
+    const x = rand() * w;
+    const top = hillY(hills[2], x);
+    const y = top + rand() * (h - top);
+    const r = 1.6 + ((y - top) / (h - top + 1)) * 2.6;
+    g.fillStyle = petals[rand() < 0.65 ? 0 : 1];
+    for (let p = 0; p < 5; p++) {
+      const a = (p / 5) * Math.PI * 2;
+      g.beginPath();
+      g.arc(x + Math.cos(a) * r, y + Math.sin(a) * r, r * 0.75, 0, Math.PI * 2);
+      g.fill();
+    }
+    g.fillStyle = "#f2b632";
+    g.beginPath();
+    g.arc(x, y, r * 0.65, 0, Math.PI * 2);
+    g.fill();
+  }
+}
+
+let sceneSize = "";
+let sceneTimer = null;
+function repaintScene(force) {
+  // 휴대폰 주소창이 들어갈 때의 작은 높이 변화로는 다시 그리지 않는다.
+  const [oldW, oldH] = sceneSize.split("x").map(Number);
+  const w = window.innerWidth, h = window.innerHeight;
+  if (!force && w === oldW && Math.abs(h - oldH) < 120) return;
+  sceneSize = `${w}x${h}`;
+  paintScene();
+}
+window.addEventListener("resize", () => {
+  clearTimeout(sceneTimer);
+  sceneTimer = setTimeout(() => repaintScene(false), 150);
+});
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => repaintScene(true));
+new MutationObserver(() => repaintScene(true)).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+repaintScene(true);
 </script>
 </body>
 </html>
