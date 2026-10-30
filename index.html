@@ -155,7 +155,7 @@ footer p { margin: 0 0 6px; }
   </div>
   <section class="panel" id="diagnosis">
     <h2>텀블러 내부 사진 진단</h2>
-    <p class="hint">내부 사진을 올리면 AI가 지금 상태, 남은 수명, 관리 방법을 알려 줍니다. 위에서 고른 소재와 사용 습관도 함께 참고합니다.</p>
+    <p class="hint">내부 사진을 올리면 지금 상태, 남은 수명, 관리 방법을 무료로 추정해 알려 줍니다. 위에서 고른 소재와 사용 습관도 함께 참고합니다.</p>
     <div class="diag">
       <div class="diag-input">
         <label class="drop" id="drop" for="photo">
@@ -164,14 +164,13 @@ footer p { margin: 0 0 6px; }
           <img id="preview" alt="선택한 텀블러 내부 사진" hidden>
         </label>
         <div class="keybox" id="keybox" hidden>
-          <label class="name" for="apikey">Anthropic API 키</label>
-          <input type="password" id="apikey" autocomplete="off" spellcheck="false" placeholder="실제 분석에만 필요합니다">
-          <p class="hint">키는 저장하지 않고 api.anthropic.com으로만 보냅니다. 요금은 키 소유자에게 청구됩니다.</p>
+          <label class="name" for="apikey">Anthropic API 키 (선택)</label>
+          <input type="password" id="apikey" autocomplete="off" spellcheck="false" placeholder="비워 두면 무료 색상 분석을 합니다">
+          <p class="hint">키를 넣으면 AI가 분석합니다. 키는 저장하지 않고 api.anthropic.com으로만 보내며, 요금은 키 소유자에게 청구됩니다.</p>
         </div>
         <div class="btns">
           <button type="button" id="analyse">사진 분석</button>
           <button type="button" class="quiet" id="stop" hidden>중지</button>
-          <button type="button" class="quiet" id="example" hidden>예시 결과 보기</button>
         </div>
         <p class="hint" id="diag-note"></p>
       </div>
@@ -189,7 +188,7 @@ footer p { margin: 0 0 6px; }
     </div>
   </section>
   <footer>
-    <p>사진 진단은 눈에 보이는 상태만 보고 AI가 추정한 참고 정보입니다. 세균, 중금속, 보온 성능은 사진으로 알 수 없고, 남은 수명은 측정값이 아닙니다. 사진은 분석을 위해 Anthropic의 Claude로 전송되며 이 페이지는 사진을 저장하지 않습니다. 얼굴이나 개인정보가 나오지 않게 찍어 주세요.</p>
+    <p>사진 진단은 눈에 보이는 상태만 보고 추정한 참고 정보입니다. 세균, 중금속, 보온 성능은 사진으로 알 수 없고, 남은 수명은 측정값이 아닙니다. <span id="diag-privacy"></span></p>
     <p>계산 방식: 필요 사용 횟수 = 보유 개수 × 텀블러 배출량 ÷ (대체 비율 × 컵 배출량 − 세척 비율 × 세척 배출량). 입력 불확실성을 반영한 표본 1,000개로 계산합니다.</p>
     <p>배출계수는 한국환경산업기술원 환경성적표지 평가계수와 인증 현황을 사용했습니다. 제품 중량, 세척 물 사용량, 세제 계수 등은 연구자 가정값이며 측정값이 아닙니다. 연구 진행 중인 프로토타입이므로 결과는 참고용입니다.</p>
   </footer>
@@ -390,26 +389,12 @@ function render() {
 }
 
 // ---- 내부 사진 진단 ----
-const SITE_API = "/api/analyze";
+const PUBLIC_SITE = true;
+const SITE_API = /*__SITE_API__*/null;
 const PROMPT_TEMPLATE = /*__PROMPT__*/null;
 const API_URL = "https://api.anthropic.com/v1/messages";
 const API_MODEL = "claude-opus-5-5";
 const MAX_IMAGE_SIDE = 1568;
-const EXAMPLE_DIAGNOSIS = {
-  usable: true,
-  condition: "caution",
-  summary: "바닥과 옆면 아래쪽에 커피 착색이 보입니다. 녹이나 코팅 벗겨짐은 보이지 않습니다.",
-  findings: [
-    { name: "커피 착색", severity: "medium", location: "바닥", evidence: "갈색 얼룩이 넓게 보입니다." },
-    { name: "물때", severity: "low", location: "옆면 아래쪽", evidence: "흰 얼룩이 조금 보입니다." },
-  ],
-  life: { low: 12, high: 24, basis: "부식이나 벗겨짐이 보이지 않아 관리하면 더 쓸 수 있습니다." },
-  care: [
-    { action: "과탄산소다 세척", how: "온수에 풀어 뚜껑을 닫지 말고 30분 둔 뒤 충분히 헹굽니다.", frequency: "월 1회" },
-    { action: "완전히 말리기", how: "뚜껑과 패킹을 분리해 입구가 아래로 가지 않게 말립니다.", frequency: "매번" },
-  ],
-  replaceWhen: ["녹이나 코팅 벗겨짐이 보일 때", "세척한 뒤에도 검은 점이 남아 있을 때"],
-};
 const CONDITION = {
   good: { cls: "good", icon: "✓", text: "양호" },
   caution: { cls: "warn", icon: "!", text: "관리 필요" },
@@ -499,16 +484,16 @@ function section(title) {
   return box;
 }
 
-function showDiagnosis(d, isExample = false) {
+function showDiagnosis(d) {
   diag.result = d;
   const out = $("diag-out");
   out.replaceChildren();
-  if (isExample) out.append(el("p", "status warn", "! 예시 화면입니다. 실제 사진을 분석한 결과가 아닙니다."));
   if (!d.usable) {
     out.append(el("span", "status warn", "! 다시 찍어 주세요"));
     out.append(el("p", "", d.reason || "사진에서 텀블러 내부를 확인하지 못했습니다. 안쪽을 밝게 비춰 다시 찍어 주세요."));
     return;
   }
+  if (d.method === "local") out.append(el("p", "hint", "AI가 아니라 사진의 색상을 자동으로 측정한 간이 진단입니다. 조명과 소재 색에 따라 틀릴 수 있습니다."));
   const c = CONDITION[d.condition];
   const head = el("div");
   head.append(el("span", "status " + c.cls, `${c.icon} ${c.text}`));
@@ -583,21 +568,10 @@ function diagnosisErrorText(code) {
 
 const DIAG_DISABLED_CODES = ["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed", "images_unavailable"];
 
-function disableDiagnosis(message) {
-  diag.mode = null;
-  diag.sample = null;
-  $("photo").disabled = true;
-  $("analyse").disabled = true;
-  $("drop").style.cursor = "not-allowed";
-  $("diag-note").textContent = message;
-}
-
 // 버튼을 말없이 막지 않는다. 무엇이 부족한지는 누른 뒤 안내한다.
 function updateAnalyseButton() {
   $("analyse").disabled = !diag.mode;
 }
-
-const NEED_KEY_TEXT = "사진이 준비되었습니다. 실제 분석을 하려면 위 칸에 Anthropic API 키를 입력해 주세요. 키가 없으면 예시 결과 보기로 화면을 확인할 수 있습니다.";
 
 // 휴대폰 사진은 크고 형식도 제각각이라, 브라우저가 열 수 있으면 줄여서 JPEG로 다시 만든다.
 // 방향을 바로잡은 상태로 그리고 위치 정보 같은 메타데이터도 함께 없어진다.
@@ -686,6 +660,260 @@ async function analyseWithKey(prompt, file, signal) {
   return parseJsonReply(text);
 }
 
+// ---- 무료 사진 분석: 브라우저 안에서 색상만 측정한다. 외부로 아무것도 보내지 않는다. ----
+// 아래 기준값과 소재별 사용 기간은 실제 사진으로 보정하지 않은 가정값이다.
+const LOCAL_SAMPLE_SIDE = 320;
+const LOCAL_BASE_MONTHS = { stainless: 60, plastic: 24, glass: 36 };
+const LOCAL_THRESHOLDS = {
+  stain: [0.03, 0.12, 0.3],
+  rust: [0.01, 0.04, 0.1],
+  dark: [0.002, 0.01, 0.04],
+  white: [0.05, 0.15, 0.35],
+};
+
+function toHsv(r, g, b) {
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+  let h = 0;
+  if (d > 0) {
+    if (max === r) h = ((g - b) / d + 6) % 6;
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h *= 60;
+  }
+  return { h, s: max === 0 ? 0 : d / max, v: max / 255 };
+}
+
+function medianOf(values) {
+  const sorted = Float32Array.from(values).sort();
+  return sorted.length ? sorted[sorted.length >> 1] : 0;
+}
+
+// 그림자 때문에 어두운 곳을 때로 오인하지 않도록 주변 평균 밝기와 비교한다.
+function localBrightness(v, w, h, radius) {
+  const integral = new Float64Array((w + 1) * (h + 1));
+  for (let y = 0; y < h; y++) {
+    let row = 0;
+    for (let x = 0; x < w; x++) {
+      row += v[y * w + x];
+      integral[(y + 1) * (w + 1) + x + 1] = integral[y * (w + 1) + x + 1] + row;
+    }
+  }
+  const out = new Float32Array(w * h);
+  for (let y = 0; y < h; y++) {
+    const y0 = Math.max(0, y - radius), y1 = Math.min(h, y + radius + 1);
+    for (let x = 0; x < w; x++) {
+      const x0 = Math.max(0, x - radius), x1 = Math.min(w, x + radius + 1);
+      const sum = integral[y1 * (w + 1) + x1] - integral[y0 * (w + 1) + x1] - integral[y1 * (w + 1) + x0] + integral[y0 * (w + 1) + x0];
+      out[y * w + x] = sum / ((x1 - x0) * (y1 - y0));
+    }
+  }
+  return out;
+}
+
+// 넓은 그림자는 빼고 작은 점만 센다.
+function countSpots(mask, w, h, maxArea) {
+  const seen = new Uint8Array(w * h), stack = [];
+  let spots = 0, area = 0;
+  for (let start = 0; start < mask.length; start++) {
+    if (!mask[start] || seen[start]) continue;
+    let size = 0;
+    stack.push(start);
+    seen[start] = 1;
+    while (stack.length) {
+      const i = stack.pop(), x = i % w;
+      size++;
+      for (const n of [x > 0 ? i - 1 : -1, x < w - 1 ? i + 1 : -1, i - w, i + w]) {
+        if (n >= 0 && n < mask.length && mask[n] && !seen[n]) {
+          seen[n] = 1;
+          stack.push(n);
+        }
+      }
+    }
+    if (size >= 3 && size <= maxArea) {
+      spots++;
+      area += size;
+    }
+  }
+  return { spots, area };
+}
+
+function measurePixels(data, w, h, material) {
+  const cx = w / 2, cy = h / 2, radius = Math.min(w, h) * 0.45;
+  const inside = [], sList = [], vList = [];
+  const v = new Float32Array(w * h), s = new Float32Array(w * h), hue = new Float32Array(w * h);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = y * w + x, p = i * 4;
+      const c = toHsv(data[p], data[p + 1], data[p + 2]);
+      v[i] = c.v; s[i] = c.s; hue[i] = c.h;
+      if ((x - cx) ** 2 + (y - cy) ** 2 <= radius ** 2) {
+        inside.push(i);
+        sList.push(c.s);
+        vList.push(c.v);
+      }
+    }
+  }
+  // 얼룩이 넓으면 중앙값이 얼룩색이 된다. 스테인리스와 유리는 원래 무채색이므로 채도 기준을 낮게 고정한다.
+  const medianS = medianOf(sList), baseV = medianOf(vList);
+  const baseS = material === "plastic" ? medianS : Math.min(medianS, 0.12);
+  const local = localBrightness(v, w, h, Math.max(4, Math.round(Math.min(w, h) / 16)));
+
+  let clipped = 0, stain = 0, rust = 0, white = 0, edge = 0;
+  const darkMask = new Uint8Array(w * h);
+  for (const i of inside) {
+    if (v[i] > 0.97) clipped++;
+    const x = i % w;
+    if (x > 0 && x < w - 1 && i >= w && i < w * h - w) {
+      const lap = 4 * v[i] - v[i - 1] - v[i + 1] - v[i - w] - v[i + w];
+      edge += lap * lap;
+    }
+    if (v[i] > 0.95) continue; // 빛 반사는 판단하지 않는다
+    const diff = v[i] - local[i];
+    if (diff < -0.18 && v[i] < baseV * 0.6) {
+      darkMask[i] = 1;
+    } else if (hue[i] >= 5 && hue[i] <= 30 && s[i] > Math.max(0.6, baseS + 0.18) && v[i] > 0.55) {
+      rust++;
+    } else if (hue[i] >= 10 && hue[i] <= 50 && s[i] > Math.max(0.25, baseS + 0.15) && v[i] > 0.12) {
+      stain++;
+    } else if (s[i] < 0.2 && s[i] < baseS + 0.05 && diff > 0.12 && v[i] > 0.6) {
+      white++;
+    }
+  }
+  const total = inside.length || 1;
+  const { spots, area } = countSpots(darkMask, w, h, total * 0.05);
+  return {
+    baseV, baseS,
+    clipped: clipped / total,
+    sharpness: (edge / total) * 255 * 255,
+    stain: stain / total,
+    rust: rust / total,
+    white: white / total,
+    dark: spots >= 2 ? area / total : 0,
+    spots,
+  };
+}
+
+function severityOf(value, [low, medium, high]) {
+  if (value >= high) return "high";
+  if (value >= medium) return "medium";
+  return value >= low ? "low" : null;
+}
+
+function percentText(value) {
+  return value < 0.01 ? "1% 미만" : `약 ${Math.round(value * 100)}%`;
+}
+
+function localCare(found, material) {
+  const care = [];
+  if (found.rust || found.dark) {
+    care.push({ action: "세척 후 다시 확인", how: "깨끗이 씻어 말린 뒤 같은 자리를 다시 찍어 보세요. 그대로 남아 있으면 사용을 멈추는 것이 좋습니다.", frequency: "지금" });
+  }
+  if (found.stain) {
+    care.push(material === "plastic"
+      ? { action: "베이킹소다 세척", how: "미지근한 물에 베이킹소다를 풀어 뚜껑을 닫지 말고 30분 둔 뒤 부드러운 솔로 닦아 헹굽니다.", frequency: "월 1~2회" }
+      : { action: "과탄산소다 세척", how: "온수에 과탄산소다를 풀어 뚜껑을 닫지 말고 30분 둔 뒤 충분히 헹굽니다. 가스가 차므로 밀폐하면 위험합니다.", frequency: "월 1~2회" });
+  }
+  if (found.white) {
+    care.push({ action: "구연산 세척", how: "온수에 구연산을 풀어 30분 둔 뒤 헹굽니다. 염소계 표백제와 절대 섞지 마세요.", frequency: "물때가 보일 때" });
+  }
+  care.push({ action: "완전히 말리기", how: "뚜껑과 패킹을 분리해 씻고, 물기가 없어질 때까지 열어 둔 채 말립니다.", frequency: "사용할 때마다" });
+  care.push(material === "stainless"
+    ? { action: "피해야 할 것", how: "염소계 표백제와 철 수세미는 표면을 상하게 하므로 쓰지 마세요. 서로 다른 세정제도 섞지 마세요.", frequency: "항상" }
+    : material === "plastic"
+      ? { action: "피해야 할 것", how: "연마제와 거친 수세미는 흠집을 내므로 쓰지 마세요. 서로 다른 세정제도 섞지 마세요.", frequency: "항상" }
+      : { action: "피해야 할 것", how: "뜨거운 물을 갑자기 붓지 말고, 서로 다른 세정제를 섞지 마세요.", frequency: "항상" });
+  // 안전 안내가 잘리지 않도록 마지막 항목은 남긴다.
+  return care.length > 4 ? [...care.slice(0, 3), care[care.length - 1]] : care;
+}
+
+function diagnoseFromMetrics(m, x) {
+  if (m.baseV < 0.12) {
+    return { usable: false, reason: "사진이 너무 어둡습니다. 손전등이나 다른 휴대폰 불빛으로 안쪽을 비춰 다시 찍어 주세요." };
+  }
+  if (m.clipped > 0.6) {
+    return { usable: false, reason: "사진이 너무 밝아 내부가 잘 보이지 않습니다. 불빛을 조금 멀리하고 다시 찍어 주세요." };
+  }
+  if (m.sharpness < 0.8) {
+    return { usable: false, reason: "사진이 흐리거나 내부 모습이 잘 보이지 않습니다. 초점을 맞춰 입구 위에서 다시 찍어 주세요." };
+  }
+
+  const found = {
+    rust: severityOf(m.rust, LOCAL_THRESHOLDS.rust),
+    dark: severityOf(m.dark, LOCAL_THRESHOLDS.dark),
+    stain: severityOf(m.stain, LOCAL_THRESHOLDS.stain),
+    white: severityOf(m.white, LOCAL_THRESHOLDS.white),
+  };
+  const findings = [];
+  if (found.rust) findings.push({ name: "녹 또는 진한 착색 의심", severity: found.rust, location: "", evidence: `주황빛이 강한 부분이 안쪽 영역의 ${percentText(m.rust)}입니다. 색만으로는 녹과 얼룩을 구분할 수 없습니다.` });
+  if (found.dark) findings.push({ name: "검은 점 의심", severity: found.dark, location: "", evidence: `주변보다 어두운 작은 점이 ${m.spots}곳 보입니다. 때, 곰팡이, 흠집일 수 있으며 사진으로는 구분할 수 없습니다.` });
+  if (found.stain) findings.push({ name: "착색 의심", severity: found.stain, location: "", evidence: `갈색빛이 도는 부분이 안쪽 영역의 ${percentText(m.stain)}입니다.` });
+  if (found.white) findings.push({ name: "물때 의심", severity: found.white, location: "", evidence: `주변보다 희게 보이는 부분이 안쪽 영역의 ${percentText(m.white)}입니다. 빛 반사일 수도 있습니다.` });
+
+  const values = Object.values(found);
+  const condition = found.rust === "high" || found.dark === "high" ? "replace"
+    : found.rust || found.dark || values.includes("medium") || values.includes("high") ? "caution"
+    : "good";
+  const summary = {
+    good: "사진의 색상으로 볼 때 눈에 띄는 문제는 적어 보입니다.",
+    caution: "사진에서 관리가 필요해 보이는 부분이 있습니다. 세척한 뒤 다시 확인해 보세요.",
+    replace: "녹이나 검은 점으로 보이는 색이 넓게 나타납니다. 세척해도 남아 있으면 교체를 권합니다.",
+  }[condition];
+
+  const base = LOCAL_BASE_MONTHS[x.material];
+  const remaining = base - x.months;
+  const name = LABELS.material[x.material];
+  let life;
+  if (condition === "replace") {
+    life = { low: 0, high: 6, basis: "세척 후에도 같은 색이 남아 있다면 지금 교체하는 것이 좋습니다." };
+  } else if (remaining <= 0) {
+    life = { low: 3, high: 12, basis: `${name} 텀블러의 일반적인 사용 기간을 약 ${base}개월로 가정했을 때 그 기간을 넘겼습니다. 상태를 자주 확인해 주세요.` };
+  } else {
+    const factor = condition === "good" ? 1 : 0.7;
+    const high = Math.max(1, Math.round(remaining * factor));
+    life = { low: Math.max(1, Math.round(high * 0.6)), high, basis: `${name} 텀블러의 일반적인 사용 기간을 약 ${base}개월로 가정하고, 사용한 기간과 사진 상태를 반영한 값입니다.` };
+  }
+
+  return {
+    usable: true,
+    method: "local",
+    condition,
+    summary,
+    findings,
+    life,
+    care: localCare(found, x.material),
+    replaceWhen: ["녹이나 코팅 벗겨짐이 보일 때", "세척한 뒤에도 검은 점이 남아 있을 때", "깊은 흠집이나 금이 생겼을 때"],
+  };
+}
+
+async function analyzeLocally(blob, x) {
+  const url = URL.createObjectURL(blob);
+  try {
+    const img = new Image();
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      img.src = url;
+    });
+    const scale = Math.min(1, LOCAL_SAMPLE_SIDE / Math.max(img.naturalWidth, img.naturalHeight));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    return diagnoseFromMetrics(measurePixels(data, canvas.width, canvas.height, x.material), x);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+function updatePrivacyNote() {
+  const usesClaude = diag.mode === "claude" || diag.mode === "site" || (diag.mode === "key" && $("apikey").value.trim());
+  $("diag-privacy").textContent = usesClaude
+    ? "사진은 분석을 위해 Anthropic의 Claude로 전송되며 이 페이지는 사진을 저장하지 않습니다. 얼굴이나 개인정보가 나오지 않게 찍어 주세요."
+    : "사진은 이 기기 안에서만 처리되며 어디로도 전송되거나 저장되지 않습니다.";
+}
+
 // 공개 사이트 경로. 키와 프롬프트는 서버에 있고 브라우저는 사진과 선택값만 보낸다.
 async function analyseWithSite(x, file, signal) {
   let response;
@@ -716,9 +944,13 @@ async function runDiagnosis() {
     note.textContent = "먼저 위 칸을 눌러 사진을 찍거나 선택해 주세요.";
     return;
   }
-  if (diag.mode === "key" && !$("apikey").value.trim()) {
-    note.textContent = NEED_KEY_TEXT;
-    $("apikey").focus();
+  if (diag.mode === "local" || (diag.mode === "key" && !$("apikey").value.trim())) {
+    try {
+      showDiagnosis(await analyzeLocally(diag.file, readInputs()));
+      note.textContent = "";
+    } catch {
+      note.textContent = "사진을 분석하지 못했습니다. 다른 사진으로 다시 시도해 주세요.";
+    }
     return;
   }
   diag.ctl = new AbortController();
@@ -741,7 +973,12 @@ async function runDiagnosis() {
     }
   } catch (e) {
     if (e?.code === "cancelled") note.textContent = "분석을 중지했습니다.";
-    else if (DIAG_DISABLED_CODES.includes(e?.code)) disableDiagnosis("이 화면에서는 Claude 사용이 허용되지 않아 사진 진단을 쓸 수 없습니다. 탄소 계산은 그대로 쓸 수 있습니다.");
+    else if (DIAG_DISABLED_CODES.includes(e?.code)) {
+      diag.mode = "local";
+      diag.sample = null;
+      updatePrivacyNote();
+      note.textContent = "이 화면에서는 Claude를 쓸 수 없어 무료 색상 분석으로 바꿨습니다. 사진 분석을 다시 눌러 주세요.";
+    }
     else note.textContent = diagnosisErrorText(e?.code) + (e?.detail ? ` (${e.detail})` : ` (코드: ${e?.code || "unknown"})`);
   } finally {
     stop.hidden = true;
@@ -766,9 +1003,7 @@ async function pickFile(file) {
   $("preview").src = diag.url;
   $("preview").hidden = false;
   $("drop-text").hidden = true;
-  note.textContent = diag.mode === "key" && !$("apikey").value.trim()
-    ? NEED_KEY_TEXT
-    : "사진이 준비되었습니다. 사진 분석 버튼을 눌러 주세요.";
+  note.textContent = "사진이 준비되었습니다. 사진 분석 버튼을 눌러 주세요.";
   // 이전 사진의 진단이 새 사진의 결과로 읽히지 않게 지운다.
   diag.result = null;
   $("diag-out").replaceChildren(diag.guide);
@@ -778,29 +1013,21 @@ async function pickFile(file) {
 async function initDiagnosis() {
   if (SITE_API) {
     diag.mode = "site";
-    $("example").hidden = false;
-    updateAnalyseButton();
-    return;
-  }
-  // 파일로 직접 열면 Claude 기능이 없으므로 예시 화면과 API 키 경로를 보여 준다.
-  if (!window.claude?.use) {
+  } else if (PUBLIC_SITE) {
+    diag.mode = "local";
+  } else if (!window.claude?.use) {
+    // 파일로 직접 열면 무료 분석을 하고, 키를 넣은 경우에만 AI를 쓴다.
     diag.mode = "key";
     $("keybox").hidden = false;
-    $("example").hidden = false;
-    $("diag-note").textContent = "실제 분석에는 Anthropic API 키가 필요합니다. 키가 없으면 예시 결과로 화면을 확인할 수 있습니다.";
-    updateAnalyseButton();
-    return;
+  } else {
+    $("diag-note").textContent = "사진 분석을 준비하고 있습니다.";
+    const sample = await window.claude.use("sample");
+    const limits = sample ? await sample.limits().catch(() => null) : null;
+    diag.mode = limits?.images ? "claude" : "local";
+    diag.sample = limits?.images ? sample : null;
+    $("diag-note").textContent = "";
   }
-  const unavailable = "이 화면에서는 사진 진단을 쓸 수 없습니다. 탄소 계산은 그대로 쓸 수 있습니다.";
-  $("diag-note").textContent = "사진 분석을 준비하고 있습니다.";
-  const sample = await window.claude.use("sample");
-  const limits = sample ? await sample.limits().catch(() => null) : null;
-  if (!limits?.images) return disableDiagnosis(unavailable);
-  diag.mode = "claude";
-  diag.sample = sample;
-  $("photo").disabled = false;
-  $("drop").style.cursor = "";
-  $("diag-note").textContent = "";
+  updatePrivacyNote();
   updateAnalyseButton();
 }
 
@@ -808,11 +1035,7 @@ $("photo").addEventListener("change", (e) => {
   pickFile(e.target.files[0]);
   e.target.value = ""; // 같은 사진을 다시 골라도 동작하도록 비운다.
 });
-$("apikey").addEventListener("input", updateAnalyseButton);
-$("example").addEventListener("click", () => {
-  $("diag-note").textContent = "";
-  showDiagnosis(EXAMPLE_DIAGNOSIS, true);
-});
+$("apikey").addEventListener("input", updatePrivacyNote);
 $("analyse").addEventListener("click", runDiagnosis);
 $("stop").addEventListener("click", () => diag.ctl?.abort());
 const drop = $("drop");
