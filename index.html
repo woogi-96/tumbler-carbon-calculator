@@ -53,7 +53,8 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 var(-
 .scene { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; display: block; }
 .wrap { max-width: 1080px; margin: 0 auto; padding-block: 32px 48px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: grid; gap: 20px; }
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+header { min-width: 0; }
 .hero { display: flex; align-items: center; gap: clamp(8px, 2vw, 18px); margin-bottom: 10px; }
 .mascot { width: clamp(72px, 13vw, 118px); height: auto; flex: none; transform-origin: 50% 100%; animation: bob 3.2s ease-in-out infinite; }
 header h1 { font: 400 clamp(34px, 7vw, 64px)/1.2 var(--display); margin: 0; min-width: 0; color: var(--title); }
@@ -62,7 +63,7 @@ header h1 { font: 400 clamp(34px, 7vw, 64px)/1.2 var(--display); margin: 0; min-
 .syl:nth-child(odd) { transform: rotate(-4deg) translateY(1px); }
 .syl:nth-child(even) { transform: rotate(3deg) translateY(-2px); color: var(--title-2); }
 .syl.mark { color: var(--title-3); transform: rotate(10deg); }
-header p { margin: 0; color: var(--ink); max-width: 62ch; width: fit-content; font-weight: 500; background: var(--panel); padding: 8px 14px; border-radius: 14px; }
+.intro { margin: 0; color: var(--ink); max-width: 62ch; width: fit-content; font-weight: 500; background: var(--panel); padding: 8px 14px; border-radius: 14px; }
 @keyframes bob { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-5px) rotate(1.5deg); } }
 @keyframes pop { from { scale: 0.7; } to { scale: 1; } }
 @media (prefers-reduced-motion: reduce) { .mascot, .syl { animation: none; } }
@@ -91,6 +92,7 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .track { position: relative; height: 14px; background: var(--track); border-radius: 7px; }
 .band { position: absolute; inset: 0 auto 0 0; background: var(--band); border-radius: 7px; }
 .fill { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 7px; }
+.fill-rec { position: absolute; top: 0; bottom: 0; min-width: 4px; background: var(--title-3); border-radius: 7px; }
 .goal { position: absolute; bottom: -9px; width: 40px; height: auto; transform: translateX(-50%); filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3)); }
 .scale { display: flex; flex-wrap: wrap; justify-content: space-between; font-size: 12.5px; color: var(--muted); margin-top: 10px; gap: 2px 12px; font-variant-numeric: tabular-nums; }
 .scale span { white-space: nowrap; }
@@ -131,6 +133,58 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .sev.low { color: var(--good); } .sev.medium { color: var(--warn); } .sev.high { color: var(--bad); }
 .detail { color: var(--ink-2); font-size: 13.5px; }
 .life { font: 400 26px/1.2 var(--display); }
+.tabs { display: flex; gap: 6px; overflow-x: auto; padding: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; width: fit-content; max-width: 100%; margin-bottom: 12px; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tabs button { flex: none; background: transparent; border-color: transparent; color: var(--ink); font-weight: 500; white-space: nowrap; padding: 8px 14px; }
+.tabs button[aria-current="page"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+.view { display: grid; gap: 20px; min-width: 0; }
+.view h2.big { font: 400 clamp(24px, 4vw, 30px)/1.25 var(--display); margin: 0 0 6px; }
+.view h3 { font-size: 15px; font-weight: 600; margin: 0 0 6px; }
+.prose { max-width: 68ch; }
+.prose p { margin: 0 0 10px; }
+.prose p:last-child { margin-bottom: 0; }
+.steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.steps li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; align-items: start; }
+.steps .num { width: 30px; height: 30px; border-radius: 50%; background: var(--accent-soft); color: var(--ink); font: 400 16px/30px var(--display); text-align: center; }
+.steps strong { display: block; font-weight: 600; }
+.steps span.detail { display: block; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.tile { background: var(--well); border-radius: 12px; padding: 10px 12px; min-width: 0; }
+.tile b { display: block; font: 400 24px/1.25 var(--display); }
+.tile span { font-size: 12.5px; color: var(--muted); }
+.leafline { display: flex; align-items: center; gap: 10px; }
+.leafline svg { width: 44px; height: 44px; flex: none; }
+.leafline b { font: 400 clamp(32px, 6vw, 44px)/1.1 var(--display); }
+.levelbar { height: 10px; background: var(--track); border-radius: 5px; overflow: hidden; margin: 10px 0 4px; }
+.levelbar div { height: 100%; background: var(--accent); border-radius: 5px; }
+.calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; max-width: 380px; }
+.calendar div { aspect-ratio: 1; max-width: 100%; border-radius: 8px; background: var(--well); display: grid; place-items: center; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.calendar .on { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.calendar .now { outline: 2px solid var(--title-3); outline-offset: -2px; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.shot { display: grid; gap: 4px; min-width: 0; font-size: 12.5px; color: var(--ink-2); }
+.shot img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; display: block; background: var(--well); }
+.shot .row { align-items: center; }
+button.mini { padding: 3px 10px; font-size: 12px; font-weight: 500; background: transparent; color: var(--ink-2); border-color: var(--line); }
+button.mini.armed { background: var(--bad-bg); color: var(--bad); border-color: var(--bad); }
+.record { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 14px; padding-block: 14px; border-bottom: 1px solid var(--line); }
+.record:last-child { border-bottom: 0; }
+.record img { width: 84px; height: 84px; object-fit: cover; border-radius: 12px; background: var(--well); }
+.record .meta { display: grid; gap: 4px; min-width: 0; }
+.record details { margin-top: 2px; }
+.record summary { cursor: pointer; font-size: 13.5px; font-weight: 500; color: var(--accent); }
+.record .detail-body { display: grid; gap: 14px; margin-top: 10px; }
+.record .detail-body p { margin: 0; }
+.timeline { display: grid; gap: 14px; }
+.timeline h4 { margin: 0 0 4px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.event { display: grid; grid-template-columns: 46px 52px minmax(0, 1fr); gap: 8px; padding-block: 5px; font-size: 14px; align-items: baseline; }
+.event time { color: var(--muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.event .tag { font-size: 11.5px; text-align: center; border-radius: 999px; background: var(--accent-soft); padding: 1px 0; }
+.notice { background: var(--warn-bg); color: var(--warn); border-radius: 12px; padding: 8px 12px; font-size: 13px; margin: 0; }
+.empty { color: var(--ink-2); margin: 0; }
+.cheer { font: 400 18px/1.35 var(--display); margin: 0; color: var(--accent); }
+@media (max-width: 760px) { .two { grid-template-columns: minmax(0, 1fr); } }
 footer { font-size: 13px; color: var(--ink-2); }
 footer p { margin: 0 0 6px; max-width: 90ch; }
 footer p:last-child { margin-bottom: 0; }
@@ -142,6 +196,9 @@ footer p:last-child { margin-bottom: 0; }
 <div class="wrap">
   <canvas class="scene" id="scene" aria-hidden="true"></canvas>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="leaf" viewBox="0 0 24 24">
+      <path d="M20.5 3.5C11 3.5 4 8 4 15.5c0 1.6.5 3 1.2 4.1C7 13.8 11 10 16 8c-4 2.8-7.5 6.8-9.3 12.6.9.6 2.2 1 3.8 1C17 21.5 21 13 20.5 3.5z" fill="var(--leaf)"/>
+    </symbol>
     <symbol id="tumbler" viewBox="0 0 64 84">
       <path d="M32 20c0-8 3-13 11-16 2 8-1 14-9 17" fill="var(--leaf)"/>
       <path d="M32 21c0-6-3-10-10-12-1 6 2 11 9 13" fill="var(--leaf)"/>
@@ -164,8 +221,17 @@ footer p:last-child { margin-bottom: 0; }
         <span aria-hidden="true"><span class="word"><span class="syl" style="--i:0">내</span></span><span class="word"><span class="syl" style="--i:1">텀</span><span class="syl" style="--i:2">블</span><span class="syl" style="--i:3">러</span><span class="syl" style="--i:4">는</span></span><span class="word"><span class="syl" style="--i:5">친</span><span class="syl" style="--i:6">환</span><span class="syl" style="--i:7">경</span><span class="syl" style="--i:8">일</span><span class="syl" style="--i:9">까</span><span class="syl mark" style="--i:10">?</span></span></span>
       </h1>
     </div>
-    <p>텀블러는 만들 때 일회용컵보다 탄소를 훨씬 많이 배출합니다. 내 사용 습관으로 그 탄소를 회수했는지 계산합니다. 처음 보이는 값은 예시이니 내 습관으로 바꿔 보세요.</p>
+    <nav class="tabs" aria-label="메뉴">
+      <button type="button" data-go="home" aria-current="page">홈</button>
+      <button type="button" data-go="about">소개</button>
+      <button type="button" data-go="today">오늘의 텀블러</button>
+      <button type="button" data-go="history">텀블러 진단 기록</button>
+      <button type="button" data-go="me">마이페이지</button>
+    </nav>
   </header>
+  <div class="view" data-view="home">
+  <p class="intro">텀블러는 만들 때 일회용컵보다 탄소를 훨씬 많이 배출합니다. 내 사용 습관으로 그 탄소를 회수했는지 계산합니다. 처음 보이는 값은 예시이니 내 습관으로 바꿔 보세요.</p>
+  <p class="intro"><strong>이 사이트의 내용은 대학원 연구자료로 쓰일 예정입니다.</strong> 다만 여기에 입력한 값과 올린 사진은 이 브라우저에만 저장되며 연구자에게 전송되지 않습니다.</p>
   <div class="grid">
     <form class="panel" id="form">
       <fieldset><legend>텀블러 소재</legend><div class="seg" id="material"></div></fieldset>
@@ -176,7 +242,8 @@ footer p:last-child { margin-bottom: 0; }
       <div><div class="row"><label class="name" for="perweek">일주일 사용 횟수</label><output id="perweek-v"></output></div>
         <input type="range" id="perweek" min="0" max="21" step="1" value="3"></div>
       <div><div class="row"><label class="name" for="months">사용한 기간</label><output id="months-v"></output></div>
-        <input type="range" id="months" min="1" max="120" step="1" value="12"></div>
+        <input type="range" id="months" min="1" max="120" step="1" value="12">
+        <p class="hint">오늘의 텀블러에 기록한 사용은 여기에 자동으로 더해집니다.</p></div>
       <div><div class="row"><label class="name" for="subst">일회용컵을 실제로 대신한 비율</label><output id="subst-v"></output></div>
         <input type="range" id="subst" min="0" max="100" step="5" value="80">
         <p class="hint">집에서 물만 담아 마신 경우는 일회용컵을 대신한 것이 아닙니다.</p></div>
@@ -189,7 +256,7 @@ footer p:last-child { margin-bottom: 0; }
         <p class="headline" id="headline"></p>
         <p class="sub" id="sub"></p>
         <div class="gauge" id="gauge">
-          <div class="track"><div class="band" id="band"></div><div class="fill" id="fill"></div><svg class="goal" id="goal" viewBox="0 0 64 84" role="img" aria-label="본전 지점"><use href="#tumbler"/></svg></div>
+          <div class="track"><div class="band" id="band"></div><div class="fill" id="fill"></div><div class="fill-rec" id="fill-rec" hidden></div><svg class="goal" id="goal" viewBox="0 0 64 84" role="img" aria-label="본전 지점"><use href="#tumbler"/></svg></div>
           <div class="scale"><span id="scale-now"></span><span id="scale-goal"></span></div>
         </div>
       </section>
@@ -238,6 +305,129 @@ footer p:last-child { margin-bottom: 0; }
       </div>
     </div>
   </section>
+  </div>
+
+  <div class="view" data-view="about" hidden>
+    <section class="panel prose">
+      <h2 class="big">이 사이트를 만든 이유</h2>
+      <p>텀블러는 친환경 상품으로 알려져 있지만, 만들 때는 일회용컵보다 탄소를 훨씬 많이 배출합니다. 그래서 충분히 오래 써야 비로소 일회용컵보다 나아집니다. 쓰지 않는 텀블러를 여러 개 갖고 있으면 오히려 탄소가 늘어날 수 있습니다.</p>
+      <p>이 사이트는 "내 텀블러는 몇 번을 써야 본전일까?"를 내 습관에 맞게 계산해 보고, 매일의 사용을 기록하며 그 지점까지 다가가도록 돕기 위해 만들었습니다. 텀블러를 더 사는 것보다 가진 텀블러를 오래 쓰는 것이 중요하다는 점을 보여 주는 것이 목표입니다.</p>
+      <p>대학원 석사 연구에서 만든 프로토타입입니다. 공공 배출계수와 연구자 가정값을 함께 쓰기 때문에 숫자는 참고용으로 봐 주세요.</p>
+    </section>
+    <section class="panel">
+      <h2 class="big">사용 방법</h2>
+      <ol class="steps">
+        <li><span class="num">1</span><div><strong>홈에서 내 습관 입력하기</strong><span class="detail">소재, 세척 방식, 보유 개수, 사용 빈도를 고르면 본전까지 몇 번 더 써야 하는지 바로 계산합니다.</span></div></li>
+        <li><span class="num">2</span><div><strong>오늘의 텀블러 기록하기</strong><span class="detail">텀블러를 쓴 날 사진을 올리면 에코 잎사귀 포인트가 쌓이고, 홈의 그래프에서 내 위치가 올라갑니다.</span></div></li>
+        <li><span class="num">3</span><div><strong>내부 사진으로 상태 진단하기</strong><span class="detail">홈 아래쪽의 사진 진단에 텀블러 내부 사진을 올리면 상태와 관리 방법을 알려 주고, 결과는 진단 기록에 쌓입니다.</span></div></li>
+        <li><span class="num">4</span><div><strong>마이페이지에서 돌아보기</strong><span class="detail">마지막 접속 시간과 지금까지의 활동을 한눈에 볼 수 있습니다.</span></div></li>
+      </ol>
+    </section>
+    <section class="panel prose">
+      <h2 class="big">내 기록은 어디에 저장되나요?</h2>
+      <p>회원가입이 없습니다. 기록과 사진은 지금 쓰는 브라우저 안에만 저장되고 서버로 보내지 않습니다. 그래서 다른 기기에서는 보이지 않고, 브라우저 데이터를 지우면 함께 사라집니다. 여러 사람이 함께 쓰는 기기에서는 다음 사람에게 기록이 보일 수 있으니 마이페이지에서 지워 주세요.</p>
+      <p>에코 잎사귀 포인트는 꾸준한 사용을 돕는 재미 요소이며 현금이나 상품으로 바꿀 수 없습니다. 올린 사진이 실제 텀블러인지는 검사하지 않습니다.</p>
+    </section>
+  </div>
+
+  <div class="view" data-view="today" hidden>
+    <p class="notice" data-storage-notice hidden></p>
+    <div class="two">
+      <section class="panel">
+        <h2 class="big">오늘의 텀블러</h2>
+        <p class="hint">오늘 텀블러를 썼다면 사진을 올려 주세요. 기록 한 번이 사용 1회로 홈의 그래프에 더해집니다.</p>
+        <div class="diag-input" style="margin-top:12px">
+          <label class="drop" id="use-drop" for="use-photo">
+            <input type="file" id="use-photo" accept="image/*">
+            <span id="use-text">사진을 찍거나 파일을 선택하세요</span>
+            <img id="use-preview" alt="오늘의 텀블러 사진" hidden>
+          </label>
+          <div class="btns"><button type="button" id="use-submit">기록하고 잎사귀 받기</button></div>
+          <p class="cheer" id="use-cheer" aria-live="polite" hidden></p>
+          <p class="hint" id="use-note" aria-live="polite"></p>
+          <p class="hint">하루 첫 기록 +10, 같은 날 추가 기록 +2(3번까지), 7일 연속 기록마다 +20</p>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="leafline">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#leaf"/></svg>
+          <div><b id="leaf-total">0</b> <span class="hint">에코 잎사귀</span></div>
+        </div>
+        <div class="levelbar"><div id="level-fill"></div></div>
+        <p class="hint" id="level-text"></p>
+        <div class="tiles" style="margin-top:12px">
+          <div class="tile"><b id="stat-streak">0일</b><span>연속 기록</span></div>
+          <div class="tile"><b id="stat-today">0회</b><span>오늘 기록</span></div>
+          <div class="tile"><b id="stat-uses">0회</b><span>전체 기록</span></div>
+        </div>
+        <p class="detail" id="use-effect" style="margin:12px 0 10px"></p>
+        <button type="button" class="quiet" data-go="home">홈에서 그래프 보기</button>
+      </section>
+    </div>
+    <section class="panel">
+      <h3>최근 4주</h3>
+      <div class="calendar" id="calendar" role="img" aria-label="최근 4주의 기록 달력"></div>
+    </section>
+    <section class="panel">
+      <h3>사용 기록</h3>
+      <div class="gallery" id="use-gallery"></div>
+      <p class="empty" id="use-empty">아직 기록이 없습니다. 오늘 쓴 텀블러 사진을 올려 첫 잎사귀를 받아 보세요.</p>
+    </section>
+  </div>
+
+  <div class="view" data-view="history" hidden>
+    <p class="notice" data-storage-notice hidden></p>
+    <section class="panel">
+      <h2 class="big">텀블러 진단 기록</h2>
+      <p class="hint">홈의 사진 진단 결과가 시간순으로 쌓입니다. 같은 텀블러를 주기적으로 찍으면 변화를 비교할 수 있습니다.</p>
+      <div class="tiles" style="margin-top:12px">
+        <div class="tile"><b id="diag-total">0회</b><span>전체 진단</span></div>
+        <div class="tile"><b id="diag-good">0회</b><span>양호</span></div>
+        <div class="tile"><b id="diag-caution">0회</b><span>관리 필요</span></div>
+        <div class="tile"><b id="diag-replace">0회</b><span>교체 권장</span></div>
+      </div>
+    </section>
+    <section class="panel">
+      <div id="diag-list"></div>
+      <div id="diag-empty-box">
+        <p class="empty" style="margin-bottom:10px">아직 진단 기록이 없습니다. 홈의 사진 진단에서 텀블러 내부 사진을 분석해 보세요.</p>
+        <button type="button" class="quiet" data-go="home" data-anchor="diagnosis">사진 진단하러 가기</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="view" data-view="me" hidden>
+    <p class="notice" data-storage-notice hidden></p>
+    <section class="panel">
+      <h2 class="big">마이페이지</h2>
+      <div class="tiles">
+        <div class="tile"><b id="me-last" style="font-size:18px"></b><span>마지막 접속</span></div>
+        <div class="tile"><b id="me-now" style="font-size:18px"></b><span>이번 접속</span></div>
+        <div class="tile"><b id="me-first" style="font-size:18px"></b><span>첫 방문</span></div>
+        <div class="tile"><b id="me-visits" style="font-size:18px"></b><span>총 방문</span></div>
+      </div>
+    </section>
+    <section class="panel">
+      <h3>나의 활동</h3>
+      <div class="tiles">
+        <div class="tile"><b id="me-leaf">0</b><span>에코 잎사귀</span></div>
+        <div class="tile"><b id="me-level"></b><span>나의 단계</span></div>
+        <div class="tile"><b id="me-uses">0회</b><span>사용 기록</span></div>
+        <div class="tile"><b id="me-streak">0일</b><span>연속 기록</span></div>
+        <div class="tile"><b id="me-diag">0회</b><span>사진 진단</span></div>
+        <div class="tile"><b id="me-saved">0kg</b><span>줄인 탄소(추정)</span></div>
+      </div>
+    </section>
+    <section class="panel">
+      <h3>활동 기록</h3>
+      <div class="timeline" id="me-timeline"></div>
+    </section>
+    <section class="panel">
+      <h3>내 기록 지우기</h3>
+      <p class="hint" style="margin-bottom:10px">이 브라우저에 저장된 사진, 포인트, 활동 기록을 모두 지웁니다. 되돌릴 수 없습니다.</p>
+      <button type="button" class="mini" id="clear-all">모든 기록 지우기</button>
+    </section>
+  </div>
   <footer class="panel">
     <p>사진 진단은 눈에 보이는 상태만 보고 추정한 참고 정보입니다. 세균, 중금속, 보온 성능은 사진으로 알 수 없고, 남은 수명은 측정값이 아닙니다. <span id="diag-privacy"></span></p>
     <p>계산 방식: 필요 사용 횟수 = 보유 개수 × 텀블러 배출량 ÷ (대체 비율 × 컵 배출량 − 세척 비율 × 세척 배출량). 입력 불확실성을 반영한 표본 1,000개로 계산합니다.</p>
@@ -254,6 +444,7 @@ const LABELS = {
 };
 const DEFAULTS = { material: "stainless", wash: "hot", cup: "paper" };
 const WEEKS_PER_MONTH = 365.25 / 12 / 7;
+let recordedUses = 0; // 오늘의 텀블러에 기록한 사용 횟수
 const $ = (id) => document.getElementById(id);
 const fmt = (v) => Math.round(v).toLocaleString("ko-KR");
 
@@ -280,7 +471,7 @@ function quantile(sorted, q) {
 // 표본별 필요 사용 횟수와 현재 사용 횟수에서의 도달 확률
 function analyse(x) {
   const T = DRAWS.tumbler[x.material], W = DRAWS.wash[x.wash], C = DRAWS.cup[x.cup];
-  const uses = x.perWeek * x.months * WEEKS_PER_MONTH;
+  const uses = x.perWeek * x.months * WEEKS_PER_MONTH + recordedUses;
   const needs = [];
   let reached = 0;
   for (let i = 0; i < T.length; i++) {
@@ -313,17 +504,22 @@ function renderSummary(x, r) {
     ? `앞으로 ${fmt(remain)}번 더 써야 본전입니다`
     : `본전보다 ${fmt(-remain)}번 더 썼습니다`;
   const hi = Number.isFinite(r.high) ? `${fmt(r.high)}회` : "손익분기 없음";
-  $("sub").textContent = `지금까지 약 ${fmt(r.uses)}회 사용, 텀블러 ${x.owned}개의 본전은 약 ${fmt(r.mid)}회입니다 (90% 구간 ${fmt(r.low)}회 ~ ${hi}).`;
+  $("sub").textContent = `지금까지 약 ${fmt(r.uses)}회 사용${recordedUses ? `(기록 ${fmt(recordedUses)}회 포함)` : ""}, 텀블러 ${x.owned}개의 본전은 약 ${fmt(r.mid)}회입니다 (90% 구간 ${fmt(r.low)}회 ~ ${hi}).`;
 
   const top = Math.max(r.mid, r.uses) * 1.25 || 1;
   $("fill").style.width = Math.min(100, r.uses / top * 100) + "%";
+  $("fill-rec").hidden = !recordedUses;
+  if (recordedUses) {
+    $("fill-rec").style.left = (r.uses - recordedUses) / top * 100 + "%";
+    $("fill-rec").style.width = recordedUses / top * 100 + "%";
+  }
   const bandLeft = r.low / top * 100;
   const bandRight = Number.isFinite(r.high) ? Math.min(100, r.high / top * 100) : 100;
   $("band").style.left = bandLeft + "%";
   $("band").style.width = Math.max(0, bandRight - bandLeft) + "%";
   // 본전이 아주 작아도 텀블러 그림이 막대 밖으로 나가지 않게 한다.
   $("goal").style.left = `clamp(20px, ${r.mid / top * 100}%, calc(100% - 20px))`;
-  $("scale-now").textContent = `내 사용 ${fmt(r.uses)}회`;
+  $("scale-now").textContent = `내 사용 ${fmt(r.uses)}회${recordedUses ? ` · 주황: 기록 ${fmt(recordedUses)}회` : ""}`;
   $("scale-goal").textContent = `텀블러: 본전 약 ${fmt(r.mid)}회 · 옅은 띠: 90% 구간`;
 }
 
@@ -368,9 +564,14 @@ function renderChart(x, r) {
 
   const netNow = median(T.map((t, i) => (r.uses * (x.subst * C[i] - x.washRate * W[i]) - x.owned * t) / 1000));
   const yNow = Math.min(Math.max(netNow, yMin), yMax);
-  const anchorEnd = sx(r.uses) > CHART.w - 110;
+  if (recordedUses) {
+    const netAt = (u) => median(T.map((t, i) => (u * (x.subst * C[i] - x.washRate * W[i]) - x.owned * t) / 1000));
+    const start = r.uses - recordedUses;
+    g += `<line x1="${sx(start)}" y1="${sy(netAt(start))}" x2="${sx(r.uses)}" y2="${sy(yNow)}" stroke="var(--title-3)" stroke-width="5" stroke-linecap="round"/>`;
+  }
+  const anchorEnd = sx(r.uses) > CHART.w - 190;
   g += `<circle cx="${sx(r.uses)}" cy="${sy(yNow)}" r="5" fill="var(--ink)" stroke="var(--panel)" stroke-width="2"/>`;
-  g += `<text class="mark" x="${sx(r.uses) + (anchorEnd ? -10 : 10)}" y="${sy(yNow) + (netNow < (yMin + yMax) / 2 ? -9 : 17)}" text-anchor="${anchorEnd ? "end" : "start"}">지금 ${netNow.toFixed(1)}kg</text>`;
+  g += `<text class="mark" x="${sx(r.uses) + (anchorEnd ? -10 : 10)}" y="${sy(yNow) + (netNow < (yMin + yMax) / 2 ? -9 : 17)}" text-anchor="${anchorEnd ? "end" : "start"}">지금 ${netNow.toFixed(1)}kg${recordedUses ? ` (기록 +${fmt(recordedUses)}회)` : ""}</text>`;
   g += `<g id="cross" visibility="hidden"><line id="cross-line" y1="${CHART.t}" y2="${CHART.h - CHART.b}" stroke="var(--muted)"/><circle id="cross-dot" r="4" fill="var(--accent)" stroke="var(--panel)" stroke-width="2"/></g>`;
   $("chart").innerHTML = g;
   chartState = { pts, sx, sy };
@@ -439,6 +640,7 @@ function render() {
   renderChart(x, r);
   renderWhatIf(x);
   renderLifeCarbon();
+  saveSettings();
 }
 
 // ---- 내부 사진 진단 ----
@@ -539,7 +741,10 @@ function section(title) {
 
 function showDiagnosis(d) {
   diag.result = d;
-  const out = $("diag-out");
+  fillDiagnosis($("diag-out"), d, true);
+}
+
+function fillDiagnosis(out, d, live) {
   out.replaceChildren();
   if (!d.usable) {
     out.append(el("span", "status warn", "! 다시 찍어 주세요"));
@@ -571,12 +776,14 @@ function showDiagnosis(d) {
     const life = section("남은 수명 추정");
     life.append(el("p", "life", d.life.high === 0 ? "지금 교체 권장" : `약 ${monthsText(d.life.low)} ~ ${monthsText(d.life.high)}`));
     if (d.life.basis) life.append(el("p", "detail", d.life.basis));
-    const link = el("p", "detail");
-    link.id = "life-carbon";
-    link.style.marginTop = "6px";
-    life.append(link);
+    if (live) {
+      const link = el("p", "detail");
+      link.id = "life-carbon";
+      link.style.marginTop = "6px";
+      life.append(link);
+    }
     out.append(life);
-    renderLifeCarbon();
+    if (live) renderLifeCarbon();
   }
 
   if (d.care.length) {
@@ -963,8 +1170,8 @@ async function analyzeLocally(blob, x) {
 function updatePrivacyNote() {
   const usesClaude = diag.mode === "claude" || diag.mode === "site" || (diag.mode === "key" && $("apikey").value.trim());
   $("diag-privacy").textContent = usesClaude
-    ? "사진은 분석을 위해 Anthropic의 Claude로 전송되며 이 페이지는 사진을 저장하지 않습니다. 얼굴이나 개인정보가 나오지 않게 찍어 주세요."
-    : "사진은 이 기기 안에서만 처리되며 어디로도 전송되거나 저장되지 않습니다.";
+    ? "사진은 분석을 위해 Anthropic의 Claude로 전송됩니다. 기록용 작은 사진은 이 브라우저에만 저장됩니다. 얼굴이나 개인정보가 나오지 않게 찍어 주세요."
+    : "사진은 이 기기 안에서만 처리되고 외부로 전송되지 않습니다. 기록용 작은 사진은 이 브라우저에만 저장되며 마이페이지에서 지울 수 있습니다.";
 }
 
 // 공개 사이트 경로. 키와 프롬프트는 서버에 있고 브라우저는 사진과 선택값만 보낸다.
@@ -999,8 +1206,10 @@ async function runDiagnosis() {
   }
   if (diag.mode === "local" || (diag.mode === "key" && !$("apikey").value.trim())) {
     try {
-      showDiagnosis(await analyzeLocally(diag.file, readInputs()));
+      const result = await analyzeLocally(diag.file, readInputs());
+      showDiagnosis(result);
       note.textContent = "";
+      await saveDiagnosis(result, diag.file, note);
     } catch {
       note.textContent = "사진을 분석하지 못했습니다. 다른 사진으로 다시 시도해 주세요.";
     }
@@ -1021,6 +1230,7 @@ async function runDiagnosis() {
     if (result) {
       showDiagnosis(result);
       note.textContent = "";
+      await saveDiagnosis(result, diag.file, note);
     } else {
       note.textContent = diagnosisErrorText("invalid_json");
     }
@@ -1100,12 +1310,558 @@ drop.addEventListener("drop", (e) => {
   if (!$("photo").disabled) pickFile(e.dataTransfer.files[0]);
 });
 
+// ---- 기록 저장소: 서버 없이 이 브라우저의 IndexedDB에 저장한다. 쓸 수 없으면 메모리로 대신한다. ----
+const STORE_NAMES = ["uses", "diagnoses", "activity", "meta"];
+const THUMB_SIDE = 480;
+const SESSION_GAP_MS = 30 * 60 * 1000;
+const ACTIVITY_LIMIT = 300;
+const POINTS = { first: 10, extra: 2, extraPerDay: 3, streakBonus: 20, streakEvery: 7 };
+const LEVELS = [
+  { name: "씨앗", from: 0 }, { name: "새싹", from: 50 }, { name: "어린 나무", from: 150 },
+  { name: "큰 나무", from: 400 }, { name: "숲", from: 1000 },
+];
+
+const store = {
+  db: null,
+  persistent: false,
+  memory: Object.fromEntries(STORE_NAMES.map((n) => [n, new Map()])),
+  open() {
+    return Promise.race([
+      new Promise((resolve) => {
+        try {
+          const request = indexedDB.open("tumbler-diary", 1);
+          request.onupgradeneeded = () => {
+            for (const name of STORE_NAMES) request.result.createObjectStore(name, { keyPath: "id" });
+          };
+          request.onsuccess = () => {
+            this.db = request.result;
+            this.persistent = true;
+            resolve();
+          };
+          request.onerror = () => resolve();
+          request.onblocked = () => resolve();
+        } catch {
+          resolve();
+        }
+      }),
+      new Promise((resolve) => setTimeout(resolve, 3000)),
+    ]);
+  },
+  run(name, mode, action) {
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction(name, mode);
+      const request = action(tx.objectStore(name));
+      tx.oncomplete = () => resolve(request.result);
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+  },
+  all(name) {
+    return this.db ? this.run(name, "readonly", (s) => s.getAll()) : Promise.resolve([...this.memory[name].values()]);
+  },
+  put(name, item) {
+    if (this.db) return this.run(name, "readwrite", (s) => s.put(item));
+    this.memory[name].set(item.id, item);
+    return Promise.resolve();
+  },
+  remove(name, id) {
+    if (this.db) return this.run(name, "readwrite", (s) => s.delete(id));
+    this.memory[name].delete(id);
+    return Promise.resolve();
+  },
+  clear(name) {
+    if (this.db) return this.run(name, "readwrite", (s) => s.clear());
+    this.memory[name].clear();
+    return Promise.resolve();
+  },
+};
+
+const app = { uses: [], diagnoses: [], activity: [], visits: null, sessionStart: Date.now(), thumbs: new Map(), pending: null };
+
+function newId() {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function dateKey(ts) {
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function dateTimeText(ts) {
+  return new Date(ts).toLocaleString("ko-KR", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
+function dayText(ts) {
+  return new Date(ts).toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "short" });
+}
+
+function timeText(ts) {
+  return new Date(ts).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", hour12: false });
+}
+
+function kgText(kg) {
+  return `${kg < 10 ? kg.toFixed(2) : kg.toFixed(1)}kg`;
+}
+
+async function fileHash(blob) {
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  let h = 2166136261;
+  for (let i = 0; i < bytes.length; i++) {
+    h ^= bytes[i];
+    h = Math.imul(h, 16777619);
+  }
+  return `${(h >>> 0).toString(16)}-${bytes.length}`;
+}
+
+async function makeThumb(blob) {
+  const url = URL.createObjectURL(blob);
+  try {
+    const img = new Image();
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      img.src = url;
+    });
+    const scale = Math.min(1, THUMB_SIDE / Math.max(img.naturalWidth, img.naturalHeight));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+    canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+    return await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.8));
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+function thumbUrl(item) {
+  if (!item.thumb) return "";
+  if (!app.thumbs.has(item.id)) app.thumbs.set(item.id, URL.createObjectURL(item.thumb));
+  return app.thumbs.get(item.id);
+}
+
+function dropThumb(id) {
+  if (app.thumbs.has(id)) URL.revokeObjectURL(app.thumbs.get(id));
+  app.thumbs.delete(id);
+}
+
+async function logActivity(type, text, ts = Date.now()) {
+  const item = { id: newId(), ts, type, text };
+  app.activity.unshift(item);
+  for (const old of app.activity.splice(ACTIVITY_LIMIT)) await store.remove("activity", old.id).catch(() => {});
+  await store.put("activity", item).catch(() => {});
+}
+
+function totalPoints() {
+  return app.uses.reduce((sum, u) => sum + (u.points || 0), 0);
+}
+
+function streakDays(extraDay) {
+  const days = new Set(app.uses.map((u) => u.day));
+  if (extraDay) days.add(extraDay);
+  const cursor = new Date();
+  if (!days.has(dateKey(cursor))) cursor.setDate(cursor.getDate() - 1);
+  let count = 0;
+  while (days.has(dateKey(cursor))) {
+    count++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return count;
+}
+
+function levelOf(points) {
+  let index = 0;
+  LEVELS.forEach((level, i) => { if (points >= level.from) index = i; });
+  return { ...LEVELS[index], next: LEVELS[index + 1] || null };
+}
+
+function medianSavedPerUse(x) {
+  const W = DRAWS.wash[x.wash], C = DRAWS.cup[x.cup];
+  return median(C.map((c, i) => x.subst * c - x.washRate * W[i])) / 1000;
+}
+
+function savedKg() {
+  return Math.max(0, app.uses.length * medianSavedPerUse(readInputs()));
+}
+
+// 지우기처럼 되돌릴 수 없는 동작은 두 번 눌러야 실행한다.
+function armButton(button, label, confirmLabel, action) {
+  button.textContent = label;
+  let timer = null;
+  button.addEventListener("click", async () => {
+    if (!button.classList.contains("armed")) {
+      button.classList.add("armed");
+      button.textContent = confirmLabel;
+      timer = setTimeout(() => {
+        button.classList.remove("armed");
+        button.textContent = label;
+      }, 4000);
+      return;
+    }
+    clearTimeout(timer);
+    button.classList.remove("armed");
+    button.textContent = label;
+    await action();
+  });
+}
+
+// ---- 오늘의 텀블러 ----
+function usePointsFor(day) {
+  const sameDay = app.uses.filter((u) => u.day === day).length;
+  if (sameDay === 0) {
+    const streak = streakDays(day);
+    const bonus = streak % POINTS.streakEvery === 0 ? POINTS.streakBonus : 0;
+    return { points: POINTS.first + bonus, bonus };
+  }
+  return { points: sameDay <= POINTS.extraPerDay ? POINTS.extra : 0, bonus: 0 };
+}
+
+async function pickUsePhoto(file) {
+  if (!file) return;
+  const note = $("use-note");
+  note.textContent = "사진을 준비하고 있습니다.";
+  $("use-cheer").hidden = true;
+  try {
+    const blob = await prepareImage(file);
+    app.pending = { blob, hash: await fileHash(blob) };
+    if ($("use-preview").src.startsWith("blob:")) URL.revokeObjectURL($("use-preview").src);
+    $("use-preview").src = URL.createObjectURL(blob);
+    $("use-preview").hidden = false;
+    $("use-text").hidden = true;
+    note.textContent = "사진이 준비되었습니다. 기록 버튼을 눌러 주세요.";
+  } catch {
+    note.textContent = "이 사진은 브라우저에서 열 수 없습니다. HEIC 형식이면 JPG로 바꾸거나 화면을 캡처해서 올려 주세요.";
+  }
+}
+
+async function submitUse() {
+  const note = $("use-note"), cheer = $("use-cheer");
+  cheer.hidden = true;
+  if (!app.pending) {
+    note.textContent = "먼저 위 칸을 눌러 사진을 찍거나 선택해 주세요.";
+    return;
+  }
+  if (app.uses.some((u) => u.hash === app.pending.hash)) {
+    note.textContent = "이미 기록한 사진입니다. 오늘 새로 찍은 사진을 올려 주세요.";
+    return;
+  }
+  const button = $("use-submit");
+  button.disabled = true;
+  try {
+    const ts = Date.now(), day = dateKey(ts);
+    const { points, bonus } = usePointsFor(day);
+    const item = { id: newId(), ts, day, hash: app.pending.hash, points, bonus, thumb: await makeThumb(app.pending.blob) };
+    await store.put("uses", item);
+    app.uses.unshift(item);
+    recordedUses = app.uses.length;
+    await logActivity("use", `오늘의 텀블러 기록 (잎사귀 +${points}${bonus ? `, 연속 보너스 포함` : ""})`, ts);
+    app.pending = null;
+    URL.revokeObjectURL($("use-preview").src);
+    $("use-preview").removeAttribute("src");
+    $("use-preview").hidden = true;
+    $("use-text").hidden = false;
+    render();
+    renderToday();
+    const x = readInputs(), r = analyse(x), left = r.mid - r.uses;
+    cheer.textContent = points ? `잎사귀 +${points}! ${bonus ? "연속 기록 보너스까지 받았어요." : "잘하셨어요."}` : "기록했어요! 오늘 받을 수 있는 잎사귀는 모두 받았습니다.";
+    cheer.hidden = false;
+    note.textContent = !Number.isFinite(r.mid) ? "지금 설정에서는 손익분기점이 없습니다. 홈에서 세척 방식을 바꿔 보세요."
+      : left > 0 ? `본전까지 약 ${fmt(left)}회 남았습니다.` : "이미 본전을 넘겼습니다. 더 쓸수록 탄소를 더 줄입니다.";
+  } catch {
+    note.textContent = "기록을 저장하지 못했습니다. 브라우저 저장 공간을 확인해 주세요.";
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function renderToday() {
+  const points = totalPoints(), level = levelOf(points);
+  $("leaf-total").textContent = points.toLocaleString("ko-KR");
+  const span = level.next ? level.next.from - level.from : 1;
+  $("level-fill").style.width = `${level.next ? Math.min(100, ((points - level.from) / span) * 100) : 100}%`;
+  $("level-text").textContent = level.next
+    ? `지금 단계: ${level.name} · ${level.next.name}까지 ${level.next.from - points}잎사귀`
+    : `지금 단계: ${level.name} · 가장 높은 단계입니다`;
+  const today = dateKey(Date.now());
+  $("stat-streak").textContent = `${streakDays()}일`;
+  $("stat-today").textContent = `${app.uses.filter((u) => u.day === today).length}회`;
+  $("stat-uses").textContent = `${app.uses.length}회`;
+
+  const x = readInputs(), r = analyse(x);
+  const left = Number.isFinite(r.mid) ? r.mid - r.uses : null;
+  $("use-effect").textContent = (app.uses.length
+    ? `기록한 ${app.uses.length}회로 일회용컵보다 탄소를 약 ${kgText(savedKg())} 줄인 것으로 추정합니다. `
+    : "기록을 시작하면 줄인 탄소를 추정해 보여 드립니다. ")
+    + (left === null ? "지금 설정에서는 손익분기점이 없습니다." : left > 0 ? `본전까지 약 ${fmt(left)}회 남았습니다.` : "본전을 넘겼습니다.");
+
+  const days = new Set(app.uses.map((u) => u.day));
+  const cal = $("calendar");
+  cal.replaceChildren();
+  const cursor = new Date();
+  cursor.setDate(cursor.getDate() - 27);
+  for (let i = 0; i < 28; i++) {
+    const key = dateKey(cursor);
+    const cell = el("div", `${days.has(key) ? "on" : ""}${key === today ? " now" : ""}`, String(cursor.getDate()));
+    cal.append(cell);
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  const gallery = $("use-gallery");
+  gallery.replaceChildren();
+  $("use-empty").hidden = app.uses.length > 0;
+  for (const item of app.uses) {
+    const shot = el("article", "shot");
+    const img = el("img");
+    img.src = thumbUrl(item);
+    img.alt = `${dateTimeText(item.ts)}에 기록한 텀블러`;
+    img.loading = "lazy";
+    const row = el("div", "row");
+    row.append(el("span", "", `잎사귀 +${item.points || 0}`));
+    const del = el("button", "mini");
+    del.type = "button";
+    armButton(del, "삭제", "정말 삭제", async () => {
+      await store.remove("uses", item.id);
+      app.uses = app.uses.filter((u) => u.id !== item.id);
+      dropThumb(item.id);
+      recordedUses = app.uses.length;
+      await logActivity("delete", `오늘의 텀블러 기록 삭제 (${dateTimeText(item.ts)})`);
+      render();
+      renderToday();
+    });
+    row.append(del);
+    shot.append(img, el("span", "", dateTimeText(item.ts)), row);
+    gallery.append(shot);
+  }
+}
+
+// ---- 진단 기록 ----
+async function saveDiagnosis(result, blob, note) {
+  if (!result?.usable) return;
+  try {
+    const hash = await fileHash(blob);
+    const ts = Date.now();
+    const material = readInputs().material;
+    // 같은 사진을 다시 분석하면 새로 쌓지 않고 가장 최근 결과로 바꾼다.
+    const same = app.diagnoses.find((d) => d.hash === hash);
+    const item = { id: same?.id || newId(), ts, hash, material, result, thumb: same?.thumb || await makeThumb(blob) };
+    await store.put("diagnoses", item);
+    app.diagnoses = [item, ...app.diagnoses.filter((d) => d.id !== item.id)];
+    const text = CONDITION[result.condition]?.text || "";
+    if (!same) await logActivity("diag", `${LABELS.material[material]} 텀블러 사진 진단: ${text}`, ts);
+    note.textContent = store.persistent ? "결과를 진단 기록에 저장했습니다." : "";
+  } catch {
+    note.textContent = "결과를 보여 드렸지만 진단 기록에 저장하지 못했습니다.";
+  }
+}
+
+function renderHistory() {
+  const list = $("diag-list");
+  list.replaceChildren();
+  $("diag-empty-box").hidden = app.diagnoses.length > 0;
+  $("diag-total").textContent = `${app.diagnoses.length}회`;
+  for (const key of ["good", "caution", "replace"]) {
+    $(`diag-${key}`).textContent = `${app.diagnoses.filter((d) => d.result.condition === key).length}회`;
+  }
+  for (const item of app.diagnoses) {
+    const c = CONDITION[item.result.condition];
+    const record = el("article", "record");
+    const img = el("img");
+    img.src = thumbUrl(item);
+    img.alt = `${dateTimeText(item.ts)}에 진단한 텀블러 내부`;
+    img.loading = "lazy";
+    const meta = el("div", "meta");
+    const row = el("div", "row");
+    row.append(el("span", `status ${c.cls}`, `${c.icon} ${c.text}`));
+    const del = el("button", "mini");
+    del.type = "button";
+    armButton(del, "삭제", "정말 삭제", async () => {
+      await store.remove("diagnoses", item.id);
+      app.diagnoses = app.diagnoses.filter((d) => d.id !== item.id);
+      dropThumb(item.id);
+      await logActivity("delete", `진단 기록 삭제 (${dateTimeText(item.ts)})`);
+      renderHistory();
+    });
+    row.append(del);
+    meta.append(row, el("span", "hint", `${dateTimeText(item.ts)} · ${LABELS.material[item.material] || ""}`), el("span", "", item.result.summary));
+    const details = el("details"), summary = el("summary", "", "자세히 보기"), body = el("div", "detail-body");
+    details.append(summary, body);
+    details.addEventListener("toggle", () => {
+      if (details.open && !body.childElementCount) fillDiagnosis(body, item.result, false);
+    });
+    meta.append(details);
+    record.append(img, meta);
+    list.append(record);
+  }
+}
+
+// ---- 마이페이지 ----
+function renderMe() {
+  const v = app.visits;
+  $("me-last").textContent = v.previous ? dateTimeText(v.previous) : "처음 방문";
+  $("me-now").textContent = dateTimeText(app.sessionStart);
+  $("me-first").textContent = dayText(v.first);
+  $("me-visits").textContent = `${v.count}회`;
+  const points = totalPoints();
+  $("me-leaf").textContent = points.toLocaleString("ko-KR");
+  $("me-level").textContent = levelOf(points).name;
+  $("me-uses").textContent = `${app.uses.length}회`;
+  $("me-streak").textContent = `${streakDays()}일`;
+  $("me-diag").textContent = `${app.diagnoses.length}회`;
+  $("me-saved").textContent = kgText(savedKg());
+
+  const tags = { visit: "접속", use: "사용", diag: "진단", delete: "삭제" };
+  const box = $("me-timeline");
+  box.replaceChildren();
+  let group = null, day = null;
+  for (const item of app.activity) {
+    const key = dateKey(item.ts);
+    if (key !== day) {
+      day = key;
+      group = el("div");
+      group.append(el("h4", "", dayText(item.ts)));
+      box.append(group);
+    }
+    const row = el("div", "event");
+    row.append(el("time", "", timeText(item.ts)), el("span", "tag", tags[item.type] || ""), el("span", "", item.text));
+    group.append(row);
+  }
+}
+
+async function clearAllRecords() {
+  for (const name of ["uses", "diagnoses", "activity"]) await store.clear(name).catch(() => {});
+  for (const id of [...app.thumbs.keys()]) dropThumb(id);
+  app.uses = [];
+  app.diagnoses = [];
+  app.activity = [];
+  recordedUses = 0;
+  await logActivity("delete", "모든 기록을 지웠습니다");
+  render();
+  renderMe();
+}
+
+// ---- 메뉴 ----
+const VIEWS = ["home", "about", "today", "history", "me"];
+
+function showView(name, anchor) {
+  const view = VIEWS.includes(name) ? name : "home";
+  document.querySelectorAll(".view").forEach((node) => { node.hidden = node.dataset.view !== view; });
+  document.querySelectorAll(".tabs button").forEach((button) => {
+    if (button.dataset.go === view) button.setAttribute("aria-current", "page");
+    else button.removeAttribute("aria-current");
+    if (button.dataset.go === view) {
+      // 페이지가 아니라 메뉴 줄만 옆으로 움직여 선택한 항목을 보여 준다.
+      const bar = button.parentElement;
+      bar.scrollLeft = button.offsetLeft - bar.offsetLeft - (bar.clientWidth - button.offsetWidth) / 2;
+    }
+  });
+  if (view === "today") renderToday();
+  if (view === "history") renderHistory();
+  if (view === "me") renderMe();
+  try {
+    if (location.hash.slice(1) !== view) history.replaceState(null, "", `#${view}`);
+  } catch {
+    // 주소를 바꿀 수 없는 보기에서는 화면만 바꾼다.
+  }
+  if (anchor) $(anchor)?.scrollIntoView({ block: "start" });
+}
+
+document.addEventListener("click", (event) => {
+  const target = event.target.closest?.("[data-go]");
+  if (target) showView(target.dataset.go, target.dataset.anchor);
+});
+window.addEventListener("hashchange", () => showView(location.hash.slice(1)));
+
+$("use-photo").addEventListener("change", (e) => {
+  pickUsePhoto(e.target.files[0]);
+  e.target.value = "";
+});
+$("use-submit").addEventListener("click", submitUse);
+const useDrop = $("use-drop");
+useDrop.addEventListener("dragover", (e) => { e.preventDefault(); useDrop.classList.add("over"); });
+useDrop.addEventListener("dragleave", () => useDrop.classList.remove("over"));
+useDrop.addEventListener("drop", (e) => {
+  e.preventDefault();
+  useDrop.classList.remove("over");
+  pickUsePhoto(e.dataTransfer.files[0]);
+});
+armButton($("clear-all"), "모든 기록 지우기", "정말 모두 지우기", clearAllRecords);
+
+async function initApp() {
+  await store.open();
+  if (!store.persistent) {
+    document.querySelectorAll("[data-storage-notice]").forEach((node) => {
+      node.textContent = "이 브라우저에서는 기록을 저장할 수 없어 창을 닫으면 사라집니다. 사생활 보호 모드라면 일반 창으로 열어 주세요.";
+      node.hidden = false;
+    });
+  }
+  const byNewest = (a, b) => b.ts - a.ts;
+  const load = (name) => store.all(name).then((rows) => rows.sort(byNewest)).catch(() => []);
+  [app.uses, app.diagnoses, app.activity] = await Promise.all([load("uses"), load("diagnoses"), load("activity")]);
+  recordedUses = app.uses.length;
+
+  const metaRows = await store.all("meta").catch(() => []);
+  const saved = metaRows.find((row) => row.id === "visits");
+  const now = app.sessionStart;
+  const isNewSession = !saved || now - saved.last > SESSION_GAP_MS;
+  app.visits = {
+    id: "visits",
+    first: saved?.first || now,
+    last: now,
+    previous: isNewSession ? saved?.last || null : saved.previous,
+    count: (saved?.count || 0) + (isNewSession ? 1 : 0),
+  };
+  await store.put("meta", app.visits).catch(() => {});
+  if (isNewSession) await logActivity("visit", "사이트에 접속했습니다", now);
+
+  render();
+  showView(location.hash.slice(1) || "home");
+}
+
+// 머무는 동안에도 마지막 접속 시간을 갱신한다.
+function touchVisit() {
+  if (!app.visits) return;
+  app.visits.last = Date.now();
+  store.put("meta", app.visits).catch(() => {});
+}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") touchVisit(); });
+
+const SETTINGS_KEY = "tumbler-settings";
+
+function saveSettings() {
+  const x = readInputs();
+  try {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify({ material: x.material, wash: x.wash, cup: x.cup,
+      owned: $("owned").value, perweek: $("perweek").value, months: $("months").value, subst: $("subst").value, washrate: $("washrate").value }));
+  } catch {
+    // 저장할 수 없어도 계산은 그대로 동작한다.
+  }
+}
+
+function loadSettings() {
+  let saved = null;
+  try {
+    saved = JSON.parse(localStorage.getItem(SETTINGS_KEY));
+  } catch {
+    return;
+  }
+  if (!saved) return;
+  for (const group of ["material", "wash", "cup"]) {
+    const radio = document.getElementById(`${group}-${saved[group]}`);
+    if (radio) radio.checked = true;
+  }
+  for (const id of ["owned", "perweek", "months", "subst", "washrate"]) {
+    const value = Number(saved[id]), input = $(id);
+    if (Number.isFinite(value) && value >= +input.min && value <= +input.max) input.value = value;
+  }
+}
+
 $("form").addEventListener("input", render);
 $("form").addEventListener("submit", (e) => e.preventDefault());
 $("chart").addEventListener("pointermove", hoverChart);
 $("chart").addEventListener("pointerleave", leaveChart);
+loadSettings();
 render();
 initDiagnosis();
+initApp();
 
 // ---- 초원 배경: 화면 크기에 맞춰 한 번 그리고, 크기나 테마가 바뀔 때만 다시 그린다. ----
 function paintScene() {
