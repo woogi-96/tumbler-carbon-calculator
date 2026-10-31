@@ -14,11 +14,15 @@
 | `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash Redis를 프로젝트에 연결하면 자동으로 등록됩니다. |
 | `ADMIN_PASSWORD` | CSV를 받을 때 쓰는 연구자 비밀번호입니다. |
 
+## 연구자 관리 화면
+
+`/api/data?op=admin`을 열고 `ADMIN_PASSWORD`로 로그인합니다. 모집 상태(닫힘, 참여 코드, 열림), 가입 상한, 동의 안내, PIN 초기화를 다룹니다. 처음 상태는 닫힘이며, 열림으로 바꾸려면 동의 안내를 채워야 합니다.
+
 ## CSV 받기
 
 브라우저에서 아래 주소를 열고 사용자 이름은 아무 값, 비밀번호는 `ADMIN_PASSWORD`를 입력합니다.
 
-- 날짜별: `/api/data?op=export` (닉네임, 날짜, 사용 횟수)
+- 날짜별: `/api/data?op=export` (닉네임, 날짜, 사용 횟수, 나중에 전송된 횟수)
 - 사람별 합계: `/api/data?op=export&view=total`
 
 API 키를 이 저장소의 파일에 넣지 마세요.

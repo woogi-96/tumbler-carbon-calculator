@@ -2,6 +2,7 @@
 
 서버가 받는 것은 닉네임, PIN, 사용 기록의 식별자와 날짜뿐이다. 사진을 받는 입력은 없다.
 PIN은 해시로만 저장하고 토큰도 해시로만 저장한다. CSV에는 닉네임과 횟수만 나간다.
+새 닉네임은 연구자가 관리 화면에서 모집을 열어야 만들 수 있다. 기본값은 닫힘이다.
 """
 import base64
 import csv
@@ -38,6 +39,97 @@ MAX_BODY_BYTES = 64 * 1024
 MAX_OPS_PER_REQUEST = 300
 MAX_USES_PER_DAY = 20
 MAX_BACKFILL_DAYS = 60
+SETTINGS_KEY = PREFIX + "settings"
+ADMIN_MAX_FAILS = 10
+ADMIN_LOCK_SECONDS = 15 * 60
+DEFAULT_MAX_ACCOUNTS = 500
+NOTICE_FIELDS = ("institution", "researcher", "contact", "retention", "irb")
+REQUIRED_NOTICE = ("institution", "researcher", "contact", "retention")
+FIELD_LIMITS = {"institution": 120, "researcher": 80, "contact": 120, "retention": 200, "irb": 120, "code": 40}
+
+
+ADMIN_HTML = """<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>연구자 관리</title>
+<meta name="robots" content="noindex">
+<style>
+:root { color-scheme: light dark; --bg: #f2f7ef; --panel: #fff; --ink: #14301d; --muted: #566b5c; --line: #cfe0c9; --accent: #2b7a33; --on: #fff; --bad: #c0302f; }
+@media (prefers-color-scheme: dark) { :root { --bg: #11241a; --panel: #1a3024; --ink: #e9f4ea; --muted: #a5bcab; --line: #2d4a37; --accent: #7fd088; --on: #0d2214; --bad: #f08481; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 system-ui, -apple-system, "Apple SD Gothic Neo", sans-serif; }
+main { max-width: 680px; margin: 0 auto; padding-block: 24px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 16px; }
+h1 { font-size: 24px; margin: 0; } h2 { font-size: 16px; margin: 0 0 8px; }
+section { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 10px; }
+label { display: grid; gap: 4px; font-weight: 600; font-size: 14px; }
+input, select, textarea { width: 100%; font: 15px inherit; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--ink); }
+button { font: 600 14px inherit; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--accent); background: var(--accent); color: var(--on); cursor: pointer; width: fit-content; }
+.muted { color: var(--muted); font-size: 13px; margin: 0; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.stats b { display: block; font-size: 22px; }
+.note { min-height: 1.3em; margin: 0; font-size: 14px; }
+.note.err { color: var(--bad); }
+a { color: var(--accent); }
+</style></head><body><main>
+<h1>연구자 관리</h1>
+<section><h2>현황</h2><div class="stats"><div><b id="users">-</b><span class="muted">참여 닉네임</span></div><div><b id="limit">-</b><span class="muted">가입 상한</span></div></div>
+<p class="muted">CSV 내려받기: <a href="/api/data?op=export">날짜별</a> · <a href="/api/data?op=export&amp;view=total">사람별 합계</a></p></section>
+<section><h2>모집 상태</h2>
+<label for="mode">상태<select id="mode"><option value="closed">닫힘: 새 닉네임을 만들 수 없음</option><option value="code">참여 코드: 코드를 아는 사람만</option><option value="open">열림: 누구나 참여</option></select></label>
+<label for="code">참여 코드<input id="code" maxlength="40" autocomplete="off"></label>
+<label for="maxAccounts">가입 상한<input id="maxAccounts" type="number" min="1" max="100000"></label>
+<p class="muted">이미 만든 닉네임의 로그인과 기록은 상태와 관계없이 계속됩니다. 열림으로 바꾸려면 아래 동의 안내 네 칸을 모두 채워야 합니다.</p></section>
+<section><h2>동의 안내에 표시할 내용</h2>
+<label for="institution">연구 기관<input id="institution" maxlength="120"></label>
+<label for="researcher">연구자<input id="researcher" maxlength="80"></label>
+<label for="contact">문의처 (PIN 초기화와 삭제 요청도 여기로 옵니다)<input id="contact" maxlength="120"></label>
+<label for="retention">보관 기간과 파기 방법<input id="retention" maxlength="200"></label>
+<label for="irb">IRB 승인번호 또는 면제 여부 (있을 때)<input id="irb" maxlength="120"></label>
+<button type="button" id="save">저장</button><p class="note" id="save-note" aria-live="polite"></p></section>
+<section><h2>PIN 초기화</h2><p class="muted">참여자 본인임을 확인한 뒤 사용하세요. 초기화하면 그 닉네임으로 다음에 입력한 PIN이 새 PIN이 됩니다. 사용 기록은 그대로입니다.</p>
+<label for="reset-nickname">닉네임<input id="reset-nickname" maxlength="12" autocomplete="off"></label>
+<button type="button" id="reset">PIN 초기화</button><p class="note" id="reset-note" aria-live="polite"></p></section>
+</main><script>
+const $ = (id) => document.getElementById(id);
+const API = location.origin + "/api/data"; // 주소에 비밀번호가 들어 있어도 요청이 실패하지 않게 한다
+const FIELDS = ["mode", "code", "maxAccounts", "institution", "researcher", "contact", "retention", "irb"];
+const ERRORS = { notice_incomplete: "열림으로 바꾸려면 연구 기관, 연구자, 문의처, 보관 기간을 모두 채워 주세요.", code_required: "참여 코드를 입력해 주세요.", invalid_request: "입력값을 확인해 주세요.", not_found: "그 닉네임을 찾지 못했습니다.", invalid_nickname: "닉네임 형식을 확인해 주세요." };
+async function post(op, body) {
+  let response;
+  try {
+    response = await fetch(`${API}?op=${op}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  } catch {
+    throw new Error("서버에 연결하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+  }
+  const data = await response.json().catch(() => null);
+  if (!response.ok) throw new Error(ERRORS[data?.code] || "처리하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+  return data;
+}
+function show(node, text, bad) { node.textContent = text; node.className = bad ? "note err" : "note"; }
+async function load() {
+  const response = await fetch(`${API}?op=admin-data`);
+  if (!response.ok) throw new Error("정보를 불러오지 못했습니다. 페이지를 새로고침해 비밀번호를 다시 입력해 주세요.");
+  const data = await response.json();
+  $("users").textContent = data.users;
+  $("limit").textContent = data.settings.maxAccounts;
+  for (const key of FIELDS) $(key).value = data.settings[key] ?? "";
+}
+$("save").addEventListener("click", async () => {
+  try {
+    await post("admin-save", Object.fromEntries(FIELDS.map((key) => [key, $(key).value])));
+    show($("save-note"), "저장했습니다.");
+    await load();
+  } catch (e) { show($("save-note"), e.message, true); }
+});
+$("reset").addEventListener("click", async () => {
+  try {
+    await post("admin-reset-pin", { nickname: $("reset-nickname").value });
+    show($("reset-note"), "초기화했습니다. 참여자에게 새 PIN으로 로그인하도록 안내해 주세요.");
+    $("reset-nickname").value = "";
+  } catch (e) { show($("reset-note"), e.message, true); }
+});
+load().catch((e) => show($("save-note"), e.message, true));
+</script></body></html>
+"""
 
 
 class ApiError(Exception):
@@ -144,8 +236,16 @@ def hash_token(token):
     return hashlib.sha256(token.encode()).hexdigest()
 
 
-def load_events(nickname):
+def event_day(value):
+    return value.split("|")[0]
+
+
+def load_stored_events(nickname):
     return _pairs(redis("HGETALL", events_key(nickname)))
+
+
+def load_events(nickname):
+    return {k: event_day(v) for k, v in load_stored_events(nickname).items()}
 
 
 def issue_token(user, nickname):
@@ -155,6 +255,75 @@ def issue_token(user, nickname):
     old, user["tokens"] = tokens[:-MAX_TOKENS], tokens[-MAX_TOKENS:]
     commands = [("SET", token_key(hashed), nickname)] + [("DEL", token_key(h)) for h in old]
     return token, commands
+
+
+def load_settings():
+    settings = {"mode": "closed", "code": "", "maxAccounts": DEFAULT_MAX_ACCOUNTS, **{k: "" for k in NOTICE_FIELDS}}
+    raw = redis("GET", SETTINGS_KEY)
+    if raw:
+        settings.update(json.loads(raw))
+    return settings
+
+
+def op_config():
+    """닉네임 화면에 보여 줄 공개 정보. 참여 코드 자체는 내보내지 않는다."""
+    settings = load_settings()
+    return 200, {"signups": settings["mode"], "notice": {k: settings[k] for k in NOTICE_FIELDS}}
+
+
+def check_signup_allowed(body, settings):
+    mode = settings["mode"]
+    if mode == "closed":
+        raise ApiError(403, "signup_closed")
+    if mode == "code":
+        code = body.get("code")
+        if not isinstance(code, str) or not hmac.compare_digest(code.strip().encode(), settings["code"].encode()):
+            raise ApiError(403, "wrong_code")
+    if (redis("SCARD", USERS_KEY) or 0) >= int(settings["maxAccounts"]):
+        raise ApiError(403, "full")
+
+
+def op_admin_save(body):
+    settings = load_settings()
+    mode = body.get("mode")
+    if mode not in ("closed", "code", "open"):
+        raise ApiError(400, "invalid_request")
+    for key, limit in FIELD_LIMITS.items():
+        value = body.get(key, "")
+        if not isinstance(value, str) or len(value.strip()) > limit:
+            raise ApiError(400, "invalid_request")
+        settings[key] = value.strip()
+    try:
+        settings["maxAccounts"] = int(body.get("maxAccounts"))
+    except (TypeError, ValueError):
+        raise ApiError(400, "invalid_request")
+    if not 1 <= settings["maxAccounts"] <= 100000:
+        raise ApiError(400, "invalid_request")
+    if mode == "code" and not settings["code"]:
+        raise ApiError(400, "code_required")
+    if mode == "open" and not all(settings[k] for k in REQUIRED_NOTICE):
+        raise ApiError(400, "notice_incomplete")
+    settings["mode"] = mode
+    redis("SET", SETTINGS_KEY, json.dumps(settings, ensure_ascii=False))
+    return 200, {"ok": True}
+
+
+def op_admin_reset_pin(body):
+    nickname = normalize_nickname(body.get("nickname"))
+    key = user_key(nickname)
+    raw = redis("GET", key)
+    if raw is None:
+        raise ApiError(404, "not_found")
+    user = json.loads(raw)
+    tokens = user.get("tokens", [])
+    user.update(pin=None, tokens=[], fails=0, lockedUntil=0)
+    pipeline([("SET", key, json.dumps(user))] + [("DEL", token_key(t)) for t in tokens])
+    return 200, {"ok": True}
+
+
+def admin_data():
+    settings = load_settings()
+    return {"users": redis("SCARD", USERS_KEY) or 0, "settings": settings}
 
 
 def op_enter(body, now=None):
@@ -167,6 +336,7 @@ def op_enter(body, now=None):
     key = user_key(nickname)
     raw = redis("GET", key)
     if raw is None:
+        check_signup_allowed(body, load_settings())
         if body.get("consent") is not True:
             raise ApiError(400, "consent_required")
         salt = secrets.token_hex(16)
@@ -182,7 +352,10 @@ def op_enter(body, now=None):
     user = json.loads(raw)
     if now < user.get("lockedUntil", 0):
         raise ApiError(429, "locked")
-    if not hmac.compare_digest(hash_pin(pin, user["salt"]), user["pin"]):
+    if user.get("pin") is None:  # 연구자가 초기화했으면 이번에 입력한 값이 새 PIN이 된다
+        user["salt"] = secrets.token_hex(16)
+        user["pin"] = hash_pin(pin, user["salt"])
+    elif not hmac.compare_digest(hash_pin(pin, user["salt"]), user["pin"]):
         user["fails"] = user.get("fails", 0) + 1
         if user["fails"] >= MAX_FAILS:
             user["fails"], user["lockedUntil"] = 0, int(now + LOCK_SECONDS)
@@ -247,7 +420,8 @@ def op_sync(body, authorization, today=None):
             continue
         counts[day] = counts.get(day, 0) + 1
         events[event_id] = day
-        commands.append(("HSET", events_key(nickname), event_id, day))
+        received = (today or datetime.now(KST).date()).isoformat()
+        commands.append(("HSET", events_key(nickname), event_id, f"{day}|{received}"))
     pipeline(commands)
     return 200, {"nickname": nickname, "events": events, "rejected": rejected}
 
@@ -287,22 +461,27 @@ def build_csv(view="daily"):
     out = io.StringIO()
     writer = csv.writer(out, lineterminator="\r\n")
     if view == "total":
-        writer.writerow(["닉네임", "총 사용 횟수", "사용한 날 수", "첫 사용일", "마지막 사용일"])
+        writer.writerow(["닉네임", "총 사용 횟수", "사용한 날 수", "첫 사용일", "마지막 사용일", "나중에 전송된 횟수"])
     else:
-        writer.writerow(["닉네임", "날짜", "사용 횟수"])
+        writer.writerow(["닉네임", "날짜", "사용 횟수", "나중에 전송된 횟수"])
     for raw, flat in zip(users, events):
         if not raw:
             continue
         nickname = json.loads(raw)["nickname"]
-        counts = {}
-        for day in _pairs(flat).values():
+        counts, late = {}, {}
+        for value in _pairs(flat).values():
+            day = event_day(value)
             counts[day] = counts.get(day, 0) + 1
+            # 사용일보다 이틀 이상 늦게 도착한 기록: 자기 보고의 신뢰도를 따질 때 쓴다.
+            received = value.split("|")[1] if "|" in value else day
+            if date.fromisoformat(received) - date.fromisoformat(day) > timedelta(days=1):
+                late[day] = late.get(day, 0) + 1
         days = sorted(counts)
         if view == "total":
-            writer.writerow([safe_cell(nickname), sum(counts.values()), len(days), days[0] if days else "", days[-1] if days else ""])
+            writer.writerow([safe_cell(nickname), sum(counts.values()), len(days), days[0] if days else "", days[-1] if days else "", sum(late.values())])
         else:
             for day in days:
-                writer.writerow([safe_cell(nickname), day, counts[day]])
+                writer.writerow([safe_cell(nickname), day, counts[day], late.get(day, 0)])
     return ("﻿" + out.getvalue()).encode("utf-8")  # 엑셀에서 한글이 깨지지 않게 BOM을 붙인다
 
 
@@ -313,12 +492,16 @@ def check_admin(authorization, ip):
     LIMITER.check("admin:" + ip, 10, 60)
     if not authorization or not authorization.startswith("Basic "):
         raise ApiError(401, "admin_required")
+    # 틀린 횟수는 저장소에 세어 서버 인스턴스가 여러 개여도 대입 시도를 막는다. IP는 해시로 잠시만 둔다.
+    fail_key = PREFIX + "admin-fail:" + hashlib.sha256(ip.encode()).hexdigest()
+    if int(redis("GET", fail_key) or 0) >= ADMIN_MAX_FAILS:
+        raise ApiError(429, "too_many")
     try:
-        decoded = base64.b64decode(authorization[6:], validate=True).decode("utf-8")
+        password = base64.b64decode(authorization[6:], validate=True).decode("utf-8").split(":", 1)[-1]
     except (ValueError, UnicodeDecodeError):
-        raise ApiError(401, "admin_required")
-    password = decoded.split(":", 1)[-1]
+        password = ""
     if not hmac.compare_digest(password.encode(), expected.encode()):
+        pipeline([("INCR", fail_key), ("EXPIRE", fail_key, ADMIN_LOCK_SECONDS)])
         raise ApiError(401, "admin_required")
 
 
@@ -342,6 +525,9 @@ def handle_post(op, raw, authorization, ip, origin, host):
     if op == "enter":
         LIMITER.check("enter:" + ip, 20, 600)
         return op_enter(body)
+    if op in ("admin-save", "admin-reset-pin"):
+        check_admin(authorization, ip)
+        return op_admin_save(body) if op == "admin-save" else op_admin_reset_pin(body)
     LIMITER.check("sync:" + ip, 120, 60)
     if op == "sync":
         return op_sync(body, authorization)
@@ -397,7 +583,33 @@ class handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         query = parse_qs(urlparse(self.path).query)
-        if query.get("op", [""])[0] != "export":
+        op = query.get("op", [""])[0]
+        if op == "config":
+            try:
+                LIMITER.check("config:" + self._ip(), 60, 60)
+                status, payload = op_config()
+            except ApiError as error:
+                status, payload = error.status, {"code": error.code}
+            return self._send(status, payload)
+        if op in ("admin", "admin-data"):
+            try:
+                check_admin(self.headers.get("Authorization", ""), self._ip())
+                if op == "admin-data":
+                    return self._send(200, admin_data())
+            except ApiError as error:
+                extra = {"WWW-Authenticate": 'Basic realm="tumbler-export", charset="UTF-8"'} if error.status == 401 else None
+                return self._send(error.status, {"code": error.code}, extra)
+            body = ADMIN_HTML.encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Robots-Tag", "noindex")
+            self.send_header("Content-Security-Policy", "frame-ancestors 'none'")
+            self.end_headers()
+            self.wfile.write(body)
+            return None
+        if op != "export":
             return self._send(405, {"code": "method_not_allowed"})
         try:
             check_admin(self.headers.get("Authorization", ""), self._ip())
