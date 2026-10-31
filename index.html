@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>내 텀블러는 친환경일까?</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#8fd3f4">
+<meta name="apple-mobile-web-app-title" content="내 텀블러">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
 <style>
 /* 레이아웃: 왼쪽은 내 사용 습관 입력, 오른쪽은 탄소 수지 결과. 좁은 화면에서는 결과가 먼저 온다. */
@@ -50,7 +52,7 @@
 [hidden] { display: none !important; }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 var(--body); }
-.scene { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; display: block; }
+.scene { position: fixed; inset: 0; width: 100%; height: 100%; height: 100lvh; z-index: -1; display: block; }
 .wrap { max-width: 1080px; margin: 0 auto; padding-block: 32px 48px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
@@ -208,7 +210,88 @@ html.locked .tabs, html.locked .view, html.locked footer { display: none !import
 footer { font-size: 13px; color: var(--ink-2); }
 footer p { margin: 0 0 6px; max-width: 90ch; }
 footer p:last-child { margin-bottom: 0; }
-@media (max-width: 760px) { .grid, .diag { grid-template-columns: minmax(0, 1fr); } .results { order: -1; } }
+.tab-icon, .tab-short { display: none; }
+.habit { min-width: 0; }
+.habit > summary { display: none; }
+.pick-row { display: none; }
+.pick-input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.pick-btn { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); font-weight: 600; font-size: 14px; text-align: center; cursor: pointer; }
+.pick-btn.quiet { background: transparent; color: var(--ink); border-color: var(--line); }
+.pick-input:focus-visible + .pick-btn { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* 넓은 화면: 입력을 옆에 두고 결과와 기록을 넓게 보여 준다 */
+@media (min-width: 1100px) {
+  .wrap { max-width: 1240px; padding-block: 40px 56px; gap: 24px; }
+  .view { gap: 24px; }
+  [data-view="home"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-view="home"] > .grid, [data-view="home"] > #diagnosis { grid-column: 1 / -1; }
+  [data-view="home"] > .intro { width: auto; max-width: none; }
+  .grid { grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 24px; }
+  .results { gap: 24px; }
+  .panel { padding: 24px; }
+  .diag { grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 32px; }
+  .gallery { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+  #diag-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 32px; }
+  [data-view="about"] { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+  [data-view="about"] > section:last-child { grid-column: 1 / -1; }
+  .tabs button { cursor: pointer; }
+  .tabs button:not([aria-current="page"]):hover { background: var(--accent-soft); }
+}
+
+/* 손가락으로 쓰는 기기: 누르는 곳을 키우고 카메라 버튼을 보여 준다 */
+@media (max-width: 760px), (pointer: coarse) {
+  html { -webkit-tap-highlight-color: transparent; }
+  button, .seg label, .pick-btn, summary { touch-action: manipulation; }
+  button { min-height: 44px; }
+  button.mini { min-height: 36px; }
+  .seg label { min-height: 44px; display: flex; align-items: center; justify-content: center; }
+  input[type=range] { height: 32px; }
+  input[type=text], input[type=password] { font-size: 16px !important; }
+  .pick-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; position: relative; }
+  .drop { min-height: 0; padding: 8px; }
+  .drop:has(img[hidden]) { position: absolute; width: 1px; height: 1px; min-height: 0; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%); }
+  .check input { width: 22px; height: 22px; margin-top: 1px; flex: none; }
+  .check { min-height: 32px; }
+}
+
+/* 휴대폰: 메뉴를 아래로 내리고 한 줄로 쌓는다 */
+@media (max-width: 760px) {
+  .wrap { padding-block: 16px calc(92px + env(safe-area-inset-bottom, 0px)); gap: 14px; }
+  .view { gap: 14px; }
+  .results { gap: 14px; }
+  .panel { padding: 16px; border-radius: 14px; }
+  .grid, .diag, .two { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .lead { display: none; }
+  .intro { font-size: 13px; font-weight: 400; padding: 8px 12px; }
+  .hero { margin-bottom: 0; }
+  .mascot { width: 56px; }
+  header h1 { font-size: clamp(24px, 7.5vw, 34px); }
+  .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; width: 100%; max-width: none; margin: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; overflow: visible; border-radius: 16px 16px 0 0; border-width: 1px 0 0; box-shadow: 0 -4px 16px rgba(20, 60, 30, 0.15);
+    padding: 6px max(6px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px)); background: var(--well); }
+  .tabs button { display: grid; justify-items: center; gap: 2px; min-width: 0; min-height: 52px; padding: 5px 2px; border-radius: 12px; font-size: 11.5px; line-height: 1.2; white-space: normal; }
+  .tabs button[aria-current="page"] { background: var(--accent-soft); border-color: transparent; color: var(--ink); }
+  .tab-full { display: none; }
+  .tab-short { display: block; }
+  .tab-icon { display: block; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .tabs button[aria-current="page"] .tab-icon { stroke: var(--accent); }
+  .habit > summary { display: grid; gap: 2px; cursor: pointer; list-style: none; position: relative; padding-right: 36px; }
+  .habit > summary::-webkit-details-marker { display: none; }
+  .habit > summary::after { content: "펼치기"; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--accent); }
+  .habit[open] > summary::after { content: "접기"; }
+  .habit > summary { padding-right: 56px; }
+  .habit-title { font-weight: 600; }
+  .habit[open] > form { margin-top: 8px; }
+  thead { display: none; }
+  table, tbody, tr, td { display: block; width: 100%; }
+  tr { padding-block: 10px; border-bottom: 1px solid var(--line); }
+  tr:last-child { border-bottom: 0; }
+  th, td { border: 0; padding: 2px 0; white-space: normal; }
+  td:first-child { font-weight: 600; margin-bottom: 2px; }
+  td[data-label] { display: flex; justify-content: space-between; gap: 12px; text-align: right; font-size: 13.5px; }
+  td[data-label]::before { content: attr(data-label); color: var(--muted); text-align: left; }
+  .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .event { grid-template-columns: 42px 46px minmax(0, 1fr); }
+}
 </style>
 
 </head>
@@ -242,11 +325,11 @@ footer p:last-child { margin-bottom: 0; }
       </h1>
     </div>
     <nav class="tabs" aria-label="메뉴">
-      <button type="button" data-go="home" aria-current="page">홈</button>
-      <button type="button" data-go="about">소개</button>
-      <button type="button" data-go="today">오늘의 텀블러</button>
-      <button type="button" data-go="history">텀블러 진단 기록</button>
-      <button type="button" data-go="me">마이페이지</button>
+      <button type="button" data-go="home" aria-current="page" aria-label="홈"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span class="tab-full">홈</span><span class="tab-short">홈</span></button>
+      <button type="button" data-go="about" aria-label="소개"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><span class="tab-full">소개</span><span class="tab-short">소개</span></button>
+      <button type="button" data-go="today" aria-label="오늘의 텀블러"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10M6 6h12l-1.4 14a1 1 0 0 1-1 1H8.400a1 1 0 0 1-1-1z"/></svg><span class="tab-full">오늘의 텀블러</span><span class="tab-short">오늘</span></button>
+      <button type="button" data-go="history" aria-label="텀블러 진단 기록"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM9 8h6M9 12h6M9 16h4"/></svg><span class="tab-full">텀블러 진단 기록</span><span class="tab-short">진단 기록</span></button>
+      <button type="button" data-go="me" aria-label="마이페이지"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7"/></svg><span class="tab-full">마이페이지</span><span class="tab-short">마이</span></button>
     </nav>
   </header>
   <section class="panel gate" id="gate" hidden>
@@ -296,10 +379,12 @@ footer p:last-child { margin-bottom: 0; }
     </form>
   </section>
   <div class="view" data-view="home">
-  <p class="intro">텀블러는 만들 때 일회용컵보다 탄소를 훨씬 많이 배출합니다. 내 사용 습관으로 그 탄소를 회수했는지 계산합니다. 처음 보이는 값은 예시이니 내 습관으로 바꿔 보세요.</p>
+  <p class="intro lead">텀블러는 만들 때 일회용컵보다 탄소를 훨씬 많이 배출합니다. 내 사용 습관으로 그 탄소를 회수했는지 계산합니다. 처음 보이는 값은 예시이니 내 습관으로 바꿔 보세요.</p>
   <p class="intro" data-site-only hidden><strong>이 사이트의 사용 횟수는 대학원 연구자료로 쓰일 예정입니다.</strong> 닉네임과 날짜별 사용 횟수만 연구자에게 전달되며, 사진과 여기에 입력한 값은 이 브라우저에만 저장되고 전달되지 않습니다.</p>
   <p class="intro" data-local-only><strong>이 사이트의 내용은 대학원 연구자료로 쓰일 예정입니다.</strong> 다만 여기에 입력한 값과 올린 사진은 이 브라우저에만 저장되며 연구자에게 전송되지 않습니다.</p>
   <div class="grid">
+    <details class="habit" id="habit" open>
+    <summary class="panel"><span class="habit-title">내 습관 입력·바꾸기</span><span class="hint" id="habit-text"></span></summary>
     <form class="panel" id="form">
       <fieldset><legend>텀블러 소재</legend><div class="seg" id="material"></div></fieldset>
       <fieldset><legend>주된 세척 방식</legend><div class="seg" id="wash"></div></fieldset>
@@ -317,6 +402,7 @@ footer p:last-child { margin-bottom: 0; }
       <div><div class="row"><label class="name" for="washrate">사용 후 세척하는 비율</label><output id="washrate-v"></output></div>
         <input type="range" id="washrate" min="0" max="100" step="5" value="100"></div>
     </form>
+    </details>
     <div class="results">
       <section class="panel" aria-live="polite">
         <span class="status" id="status"></span>
@@ -343,6 +429,11 @@ footer p:last-child { margin-bottom: 0; }
     <p class="hint">내부 사진을 올리면 지금 상태, 남은 수명, 관리 방법을 무료로 추정해 알려 줍니다. 위에서 고른 소재와 사용 습관도 함께 참고합니다.</p>
     <div class="diag">
       <div class="diag-input">
+        <div class="pick-row">
+          <input type="file" id="photo-cam" class="pick-input" accept="image/*" capture="environment">
+          <label class="pick-btn" for="photo-cam">카메라로 찍기</label>
+          <label class="pick-btn quiet" for="photo">앨범에서 선택</label>
+        </div>
         <label class="drop" id="drop" for="photo">
           <input type="file" id="photo" accept="image/*">
           <span id="drop-text">사진을 찍거나 파일을 선택하세요</span>
@@ -407,6 +498,11 @@ footer p:last-child { margin-bottom: 0; }
         <h2 class="big">오늘의 텀블러</h2>
         <p class="hint">오늘 텀블러를 썼다면 사진을 올려 주세요. 기록 한 번이 사용 1회로 홈의 그래프에 더해집니다.</p>
         <div class="diag-input" style="margin-top:12px">
+          <div class="pick-row">
+            <input type="file" id="use-photo-cam" class="pick-input" accept="image/*" capture="environment">
+            <label class="pick-btn" for="use-photo-cam">카메라로 찍기</label>
+            <label class="pick-btn quiet" for="use-photo">앨범에서 선택</label>
+          </div>
           <label class="drop" id="use-drop" for="use-photo">
             <input type="file" id="use-photo" accept="image/*">
             <span id="use-text">사진을 찍거나 파일을 선택하세요</span>
@@ -628,7 +724,17 @@ function niceStep(span, count) {
   return (n < 1.5 ? 1 : n < 3 ? 2 : n < 7 ? 5 : 10) * mag;
 }
 
+// 축소된 그림이 아니라 실제 칸 크기로 그려 휴대폰에서도 글자가 작아지지 않게 한다.
+function fitChart() {
+  const width = Math.round($("chart").parentElement.clientWidth);
+  if (!width) return;
+  const narrow = width < 480;
+  Object.assign(CHART, { w: width, h: narrow ? 240 : width < 760 ? 280 : 330, l: narrow ? 38 : 52, r: narrow ? 10 : 16, narrow });
+  $("chart").setAttribute("viewBox", `0 0 ${CHART.w} ${CHART.h}`);
+}
+
 function renderChart(x, r) {
+  fitChart();
   const T = DRAWS.tumbler[x.material], W = DRAWS.wash[x.wash], C = DRAWS.cup[x.cup];
   const anchor = Number.isFinite(r.mid) ? r.mid : r.uses;
   const xMax = Math.max(anchor * 1.4, r.uses * 1.2, 20);
@@ -645,13 +751,13 @@ function renderChart(x, r) {
   const sx = (v) => CHART.l + v / xMax * (CHART.w - CHART.l - CHART.r);
   const sy = (v) => CHART.t + (yMax - v) / (yMax - yMin) * (CHART.h - CHART.t - CHART.b);
   let g = "";
-  const yStep = niceStep(yMax - yMin, 5);
+  const yStep = niceStep(yMax - yMin, CHART.narrow ? 4 : 5);
   for (let v = Math.ceil(yMin / yStep) * yStep; v <= yMax; v += yStep) {
     const zero = Math.abs(v) < yStep / 1000;
     g += `<line x1="${CHART.l}" x2="${CHART.w - CHART.r}" y1="${sy(v)}" y2="${sy(v)}" stroke="var(--${zero ? "ink-2" : "line"})" stroke-width="${zero ? 1.5 : 1}"/>`;
     g += `<text x="${CHART.l - 8}" y="${sy(v) + 4}" text-anchor="end">${(zero ? 0 : v).toLocaleString("ko-KR", { maximumFractionDigits: 2 })}</text>`;
   }
-  const xStep = niceStep(xMax, 5);
+  const xStep = niceStep(xMax, CHART.narrow ? 3 : 6);
   for (let v = 0; v <= xMax; v += xStep) g += `<text x="${sx(v)}" y="${CHART.h - 14}" text-anchor="middle">${fmt(v)}</text>`;
   g += `<text x="${CHART.w - CHART.r}" y="${CHART.h - 1}" text-anchor="end">사용 횟수(회)</text>`;
   g += `<text x="${CHART.l}" y="11" text-anchor="start">kgCO₂e</text>`;
@@ -666,9 +772,9 @@ function renderChart(x, r) {
     const start = r.uses - recordedUses;
     g += `<line x1="${sx(start)}" y1="${sy(netAt(start))}" x2="${sx(r.uses)}" y2="${sy(yNow)}" stroke="var(--title-3)" stroke-width="5" stroke-linecap="round"/>`;
   }
-  const anchorEnd = sx(r.uses) > CHART.w - 190;
+  const anchorEnd = sx(r.uses) > CHART.w - (CHART.narrow ? 90 : 190);
   g += `<circle cx="${sx(r.uses)}" cy="${sy(yNow)}" r="5" fill="var(--ink)" stroke="var(--panel)" stroke-width="2"/>`;
-  g += `<text class="mark" x="${sx(r.uses) + (anchorEnd ? -10 : 10)}" y="${sy(yNow) + (netNow < (yMin + yMax) / 2 ? -9 : 17)}" text-anchor="${anchorEnd ? "end" : "start"}">지금 ${netNow.toFixed(1)}kg${recordedUses ? ` (기록 +${fmt(recordedUses)}회)` : ""}</text>`;
+  g += `<text class="mark" x="${sx(r.uses) + (anchorEnd ? -10 : 10)}" y="${sy(yNow) + (netNow < (yMin + yMax) / 2 ? -9 : 17)}" text-anchor="${anchorEnd ? "end" : "start"}">지금 ${netNow.toFixed(1)}kg${recordedUses && !CHART.narrow ? ` (기록 +${fmt(recordedUses)}회)` : ""}</text>`;
   g += `<g id="cross" visibility="hidden"><line id="cross-line" y1="${CHART.t}" y2="${CHART.h - CHART.b}" stroke="var(--muted)"/><circle id="cross-dot" r="4" fill="var(--accent)" stroke="var(--panel)" stroke-width="2"/></g>`;
   $("chart").innerHTML = g;
   chartState = { pts, sx, sy };
@@ -711,7 +817,7 @@ function whatIfRow(label, x, isNow) {
     const months = r.mid / (x.perWeek * WEEKS_PER_MONTH);
     time = months < 24 ? `약 ${Math.max(1, Math.round(months))}개월` : `약 ${(months / 12).toFixed(1)}년`;
   } else if (x.perWeek === 0) time = "사용 안 함";
-  return `<tr class="${isNow ? "now" : ""}"><td>${label}</td><td>${need}</td><td>${time}</td><td>${Math.round(r.p * 100)}%</td></tr>`;
+  return `<tr class="${isNow ? "now" : ""}"><td>${label}</td><td data-label="필요 사용 횟수">${need}</td><td data-label="지금 습관으로 걸리는 기간">${time}</td><td data-label="도달 확률">${Math.round(r.p * 100)}%</td></tr>`;
 }
 
 function renderWhatIf(x) {
@@ -738,6 +844,7 @@ function render() {
   renderWhatIf(x);
   renderLifeCarbon();
   saveSettings();
+  $("habit-text").textContent = `${LABELS.material[x.material]} · ${LABELS.wash[x.wash]} · ${LABELS.cup[x.cup]} · ${x.owned}개 · 주 ${x.perWeek}회`;
 }
 
 // ---- 내부 사진 진단 ----
@@ -1393,6 +1500,10 @@ async function initDiagnosis() {
   updateAnalyseButton();
 }
 
+$("photo-cam").addEventListener("change", (e) => {
+  pickFile(e.target.files[0]);
+  e.target.value = "";
+});
 $("photo").addEventListener("change", (e) => {
   pickFile(e.target.files[0]);
   e.target.value = ""; // 같은 사진을 다시 골라도 동작하도록 비운다.
@@ -1900,6 +2011,7 @@ const VIEWS = ["home", "about", "today", "history", "me"];
 
 function showView(name, anchor) {
   const view = VIEWS.includes(name) ? name : "home";
+  const previous = document.querySelector(".view:not([hidden])")?.dataset.view;
   document.querySelectorAll(".view").forEach((node) => { node.hidden = node.dataset.view !== view; });
   document.querySelectorAll(".tabs button").forEach((button) => {
     if (button.dataset.go === view) button.setAttribute("aria-current", "page");
@@ -1910,6 +2022,7 @@ function showView(name, anchor) {
       bar.scrollLeft = button.offsetLeft - bar.offsetLeft - (bar.clientWidth - button.offsetWidth) / 2;
     }
   });
+  if (view === "home") render(); // 숨겨져 있는 동안 크기를 알 수 없던 그래프를 다시 그린다
   if (view === "today") renderToday();
   if (view === "history") renderHistory();
   if (view === "me") renderMe();
@@ -1919,6 +2032,7 @@ function showView(name, anchor) {
     // 주소를 바꿀 수 없는 보기에서는 화면만 바꾼다.
   }
   if (anchor) $(anchor)?.scrollIntoView({ block: "start" });
+  else if (previous && previous !== view) window.scrollTo(0, 0);
 }
 
 document.addEventListener("click", (event) => {
@@ -1927,6 +2041,10 @@ document.addEventListener("click", (event) => {
 });
 window.addEventListener("hashchange", () => showView(location.hash.slice(1)));
 
+$("use-photo-cam").addEventListener("change", (e) => {
+  pickUsePhoto(e.target.files[0]);
+  e.target.value = "";
+});
 $("use-photo").addEventListener("change", (e) => {
   pickUsePhoto(e.target.files[0]);
   e.target.value = "";
@@ -2292,8 +2410,22 @@ function loadSettings() {
 $("form").addEventListener("input", render);
 $("form").addEventListener("submit", (e) => e.preventDefault());
 $("chart").addEventListener("pointermove", hoverChart);
+$("chart").addEventListener("pointerdown", hoverChart);
 $("chart").addEventListener("pointerleave", leaveChart);
+// 휴대폰에서는 결과가 먼저 보이도록 입력을 접고, 넓은 화면에서는 항상 펼친다.
+const narrowScreen = window.matchMedia("(max-width: 760px)");
+function syncHabit() {
+  $("habit").open = !narrowScreen.matches;
+}
+narrowScreen.addEventListener?.("change", syncHabit);
+let chartTimer = null;
+window.addEventListener("resize", () => {
+  clearTimeout(chartTimer);
+  chartTimer = setTimeout(render, 150);
+});
+
 loadSettings();
+syncHabit();
 render();
 initDiagnosis();
 initApp();
