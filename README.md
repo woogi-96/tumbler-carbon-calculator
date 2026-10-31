@@ -4,6 +4,21 @@
 
 - `index.html`: 웹페이지. 상위 프로젝트의 `run_pipeline.py`가 생성합니다.
 - 사진 진단은 브라우저 안에서 색상만 측정하는 무료 방식입니다. 사진은 외부로 전송되지 않고 요금도 들지 않습니다.
+- `api/data.py`: 닉네임 계정, 사용 횟수 저장, 연구자용 CSV입니다. 사진을 받는 입력은 없습니다.
 - `api/analyze.py`: 유료 AI 분석용 서버 함수입니다. 지금 페이지는 이 함수를 부르지 않습니다.
+
+## 환경변수 (Vercel 프로젝트 설정)
+
+| 이름 | 설명 |
+|---|---|
+| `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash Redis를 프로젝트에 연결하면 자동으로 등록됩니다. |
+| `ADMIN_PASSWORD` | CSV를 받을 때 쓰는 연구자 비밀번호입니다. |
+
+## CSV 받기
+
+브라우저에서 아래 주소를 열고 사용자 이름은 아무 값, 비밀번호는 `ADMIN_PASSWORD`를 입력합니다.
+
+- 날짜별: `/api/data?op=export` (닉네임, 날짜, 사용 횟수)
+- 사람별 합계: `/api/data?op=export&view=total`
 
 API 키를 이 저장소의 파일에 넣지 마세요.
