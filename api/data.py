@@ -25,12 +25,14 @@ from urllib.parse import parse_qs, urlparse
 PREFIX = "tumbler:"
 USERS_KEY = PREFIX + "users"
 NICKNAME_RE = re.compile(r"^[가-힣a-zA-Z0-9_]{2,12}$")
-PIN_RE = re.compile(r"^\d{4}$")
+NEW_PIN_RE = re.compile(r"^\d{6}$")
+LOGIN_PIN_RE = re.compile(r"^\d{4,6}$")  # 초기에 4자리로 만든 계정도 로그인할 수 있게 한다
 EVENT_ID_RE = re.compile(r"^[a-z0-9-]{1,40}$")
 DAY_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 KST = timezone(timedelta(hours=9))
 
-CONSENT_VERSION = "2026-10-31"
+CONSENT_VERSION = "2026-10-31b"
+TOKEN_TTL_SECONDS = 30 * 24 * 3600  # 마지막 사용 후 30일이 지나면 다시 로그인한다
 PIN_ITERATIONS = 120_000
 MAX_FAILS = 5
 LOCK_SECONDS = 15 * 60
@@ -253,7 +255,7 @@ def issue_token(user, nickname):
     hashed = hash_token(token)
     tokens = (user.get("tokens") or []) + [hashed]
     old, user["tokens"] = tokens[:-MAX_TOKENS], tokens[-MAX_TOKENS:]
-    commands = [("SET", token_key(hashed), nickname)] + [("DEL", token_key(h)) for h in old]
+    commands = [("SET", token_key(hashed), nickname, "EX", TOKEN_TTL_SECONDS)] + [("DEL", token_key(h)) for h in old]
     return token, commands
 
 
@@ -331,17 +333,24 @@ def op_enter(body, now=None):
     now = time.time() if now is None else now
     nickname = normalize_nickname(body.get("nickname"))
     pin = body.get("pin")
-    if not isinstance(pin, str) or not PIN_RE.match(pin):
+    if not isinstance(pin, str) or not LOGIN_PIN_RE.match(pin):
         raise ApiError(400, "invalid_pin")
     key = user_key(nickname)
     raw = redis("GET", key)
     if raw is None:
         check_signup_allowed(body, load_settings())
+        if not NEW_PIN_RE.match(pin):
+            raise ApiError(400, "invalid_new_pin")
+        if body.get("ageConfirmed") is not True:
+            raise ApiError(400, "age_required")
         if body.get("consent") is not True:
             raise ApiError(400, "consent_required")
+        if body.get("overseasConsent") is not True:
+            raise ApiError(400, "overseas_required")
         salt = secrets.token_hex(16)
         user = {"nickname": nickname, "salt": salt, "pin": hash_pin(pin, salt), "fails": 0, "lockedUntil": 0,
-                "tokens": [], "createdAt": int(now), "consentAt": int(now), "consentVersion": CONSENT_VERSION}
+                "tokens": [], "createdAt": int(now), "consentAt": int(now), "consentVersion": CONSENT_VERSION,
+                "ageConfirmedAt": int(now), "overseasConsentAt": int(now)}
         token, commands = issue_token(user, nickname)
         # 동시에 같은 닉네임을 만들면 먼저 저장한 쪽만 성공한다.
         if redis("SET", key, json.dumps(user), "NX") is None:
@@ -353,6 +362,8 @@ def op_enter(body, now=None):
     if now < user.get("lockedUntil", 0):
         raise ApiError(429, "locked")
     if user.get("pin") is None:  # 연구자가 초기화했으면 이번에 입력한 값이 새 PIN이 된다
+        if not NEW_PIN_RE.match(pin):
+            raise ApiError(400, "invalid_new_pin")
         user["salt"] = secrets.token_hex(16)
         user["pin"] = hash_pin(pin, user["salt"])
     elif not hmac.compare_digest(hash_pin(pin, user["salt"]), user["pin"]):
@@ -394,7 +405,7 @@ def valid_day(day, today=None):
 
 def op_sync(body, authorization, today=None):
     """밀린 추가·삭제를 반영하고 전체 기록을 돌려준다. 같은 요청을 다시 보내도 결과가 같다."""
-    nickname, _ = authenticate(authorization)
+    nickname, hashed = authenticate(authorization)
     add, remove = body.get("add") or [], body.get("remove") or []
     if not isinstance(add, list) or not isinstance(remove, list) or len(add) + len(remove) > MAX_OPS_PER_REQUEST:
         raise ApiError(400, "invalid_request")
@@ -422,7 +433,7 @@ def op_sync(body, authorization, today=None):
         events[event_id] = day
         received = (today or datetime.now(KST).date()).isoformat()
         commands.append(("HSET", events_key(nickname), event_id, f"{day}|{received}"))
-    pipeline(commands)
+    pipeline(commands + [("EXPIRE", token_key(hashed), TOKEN_TTL_SECONDS)])
     return 200, {"nickname": nickname, "events": events, "rejected": rejected}
 
 
