@@ -730,8 +730,9 @@ function resize() {
   view.dpr = Math.min(2.5, window.devicePixelRatio || 1);
   view.cw = r.width; view.ch = r.height;
   cv.width = Math.round(r.width * view.dpr); cv.height = Math.round(r.height * view.dpr);
-  view.s = Math.min(r.width / VIEW.w, r.height / VIEW.h) * .98;
-  view.ox = (r.width - VIEW.w * view.s) / 2; view.oy = Math.max(0, (r.height - VIEW.h * view.s) * .35);
+  const TOP = 36; // room above the crown so the longest hair tips stay tappable
+  view.s = Math.min(r.width / VIEW.w, r.height / (VIEW.h + TOP)) * .98;
+  view.ox = (r.width - VIEW.w * view.s) / 2; view.oy = TOP * view.s + Math.max(0, (r.height - (VIEW.h + TOP) * view.s) * .35);
 }
 function makeHair(pt, white) {
   const P = G.P;
@@ -1082,7 +1083,7 @@ $('#btnEndHome').onclick = () => { stopMelody(); goHome(); };
 document.addEventListener('visibilitychange', () => { if (document.hidden && G && G.running && !G.paused) $('#btnPause').click(); });
 
 renderTitle(); fitWorlds();
-window.__mm = { startGame, playRoom, playOut, playEnd, get G() { return G; }, pluckAt, toScreen };
+window.__mm = { startGame, playRoom, playOut, playEnd, get G() { return G; }, pluckAt, toScreen, hairDist, stageParams, TOOLS };
 })();
 </script>
 </body>

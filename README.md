@@ -25,3 +25,8 @@
 - 사람별 합계: `/api/data?op=export&view=total`
 
 API 키를 이 저장소의 파일에 넣지 마세요.
+
+## 게임: 멍뭉이 털을 찾아라
+
+- `Game.html`: 파일 하나로 된 브라우저 게임입니다. Vercel에 배포되면 `/Game`(또는 `/Game.html`) 주소로 열립니다.
+- 테스트: `node --test` (Playwright와 Chromium이 필요합니다). 테스트는 `vercel.json`의 보안 헤더(CSP)를 그대로 붙여 로컬에서 페이지를 띄우고, 1단계 진행, 점수(+5/-1), 통과·실패, 10단계 도구, 다음 날 진행, 엔딩, 모바일 터치를 확인합니다.
