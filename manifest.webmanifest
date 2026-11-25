@@ -1,0 +1,18 @@
+{
+  "name": "내 텀블러는 친환경일까?",
+  "short_name": "내 텀블러",
+  "description": "텀블러를 몇 번 더 써야 일회용컵보다 탄소를 줄이는지 계산하고 매일의 사용을 기록합니다.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "ko",
+  "background_color": "#e3f6e4",
+  "theme_color": "#8fd3f4",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
